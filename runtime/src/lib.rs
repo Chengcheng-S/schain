@@ -271,6 +271,11 @@ impl pallet_simple_pallet::Config for Runtime{
 	type Event = Event;
 }
 
+// use storage pallet
+impl pallet_use_storage::Config for Runtime{
+	type Event =Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -290,6 +295,9 @@ construct_runtime!(
 		TemplateModule: pallet_template,
 		// the simple pallet module
 		Simplepallet : pallet_simple_pallet,
+
+		//storage example
+		Usestoragepallet : pallet_use_storage,
 	}
 );
 
