@@ -266,6 +266,11 @@ impl pallet_template::Config for Runtime {
 	type Event = Event;
 }
 
+//simple pallet
+impl pallet_simple_pallet::Config for Runtime{
+	type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -283,6 +288,8 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		// the simple pallet module
+		Simplepallet : pallet_simple_pallet,
 	}
 );
 
