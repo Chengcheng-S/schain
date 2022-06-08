@@ -32,13 +32,16 @@ pub mod pallet {
 	// studentinfo
 	#[pallet::storage]
 	#[pallet::getter(fn student_info)]
-	pub type StudentInfo<T> where T: Config = StorageMap<_, Blake2_128Concat, u32, u128, ValueQuery>;
+	pub type StudentInfo<T>
+	where
+		T: Config,
+	= StorageMap<_, Blake2_128Concat, u32, u128, ValueQuery>;
 
 	//dorminfo
 	#[pallet::storage]
 	#[pallet::getter(fn dorminfo)]
-	pub type DormInfo<T: Config> = StorageDoubleMap<_, Blake2_128Concat, u32, Blake2_128Concat, u32, u32, ValueQuery>;
-
+	pub type DormInfo<T: Config> =
+		StorageDoubleMap<_, Blake2_128Concat, u32, Blake2_128Concat, u32, u32, ValueQuery>;
 
 	// 5. Runtime Events
 	// Can stringify event types to metadata.
@@ -50,18 +53,35 @@ pub mod pallet {
 		SetDormInfo(u32, u32, u32),
 	}
 
+	//runtime error
+	#[pallet::error]
+	pub enum Error<T> {
+		SetClassDuplicate,
+
+		SetStudentInfoDuplicate,
+
+		SetDormInfoDuplicate,
+	}
+
 	// 7. Extrinsics
 	// Functions that are callable from outside the runtime.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
+		#[pallet::compact]
 		#[pallet::weight(0)]
 		pub fn setClass(origin: OriginFor<T>, class: u32) -> DispatchResultWithPostInfo {
 			// check the sender is origin acc
 			ensure_root(origin)?;
+
+			if Class::<T>::exists() {
+				return Err(Error::<T>::SetClassDuplicate.into())
+			}
+
 			//set the value
 			Class::<T>::put(class);
 
-
+			// call storage geeter method  note argments
+			// let _z = Self::one_class();
 			//emit setclass event
 			Self::deposit_event(Event::SetClass(class));
 
@@ -72,8 +92,13 @@ pub mod pallet {
 		pub fn setstudentinfo(
 			origin: OriginFor<T>,
 			class: u32,
-			name: u128) -> DispatchResultWithPostInfo {
+			name: u128,
+		) -> DispatchResultWithPostInfo {
 			ensure_signed(origin)?;
+
+			if StudentInfo::<T>::contains_key(&class) {
+				return Err(Error::<T>::SetStudentInfoDuplicate.into())
+			}
 
 			StudentInfo::<T>::insert(&class, &name);
 
@@ -88,8 +113,13 @@ pub mod pallet {
 			origin: OriginFor<T>,
 			dorm_number: u32,
 			bed_number: u32,
-			student_number: u32) -> DispatchResultWithPostInfo {
+			student_number: u32,
+		) -> DispatchResultWithPostInfo {
 			ensure_signed(origin)?;
+
+			if DormInfo::<T>::contains_key(&dorm_number, &bed_number) {
+				return Err(Error::<T>::SetDormInfoDuplicate.into())
+			}
 
 			DormInfo::<T>::insert(&dorm_number, &bed_number, &student_number);
 

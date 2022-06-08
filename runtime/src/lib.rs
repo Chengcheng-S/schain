@@ -267,13 +267,13 @@ impl pallet_template::Config for Runtime {
 }
 
 //simple pallet
-impl pallet_simple_pallet::Config for Runtime{
+impl pallet_simple_pallet::Config for Runtime {
 	type Event = Event;
 }
 
 // use storage pallet
-impl pallet_use_storage::Config for Runtime{
-	type Event =Event;
+impl pallet_use_storage::Config for Runtime {
+	type Event = Event;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
