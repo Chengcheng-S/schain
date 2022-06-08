@@ -67,7 +67,7 @@ pub mod pallet {
 	// Functions that are callable from outside the runtime.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::compact]
+
 		#[pallet::weight(0)]
 		pub fn setClass(origin: OriginFor<T>, class: u32) -> DispatchResultWithPostInfo {
 			// check the sender is origin acc

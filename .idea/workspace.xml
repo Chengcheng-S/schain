@@ -5,9 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/use-storage/src/storage.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ext-example/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ext-example/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ext-example/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/storage.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/use-storage/src/storage.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,16 +45,20 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/pallets" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Rustcode\substrate-node-template\pallets" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Rustcode\substrate-node-template\pallets" />
     </key>
   </component>
@@ -67,6 +78,8 @@
       <workItem from="1654604315240" duration="1701000" />
       <workItem from="1654651537745" duration="33000" />
       <workItem from="1654652532675" duration="1505000" />
+      <workItem from="1654671537901" duration="1684000" />
+      <workItem from="1654682654863" duration="3137000" />
     </task>
     <servers />
   </component>
@@ -84,5 +97,8 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

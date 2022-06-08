@@ -276,6 +276,12 @@ impl pallet_use_storage::Config for Runtime {
 	type Event = Event;
 }
 
+
+//ext-pallet
+impl pallet_ext::Config for Runtime{
+	type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -298,6 +304,9 @@ construct_runtime!(
 
 		//storage example
 		Usestoragepallet : pallet_use_storage,
+
+		// ext pallet example
+		ExtPallet :pallet_ext,
 	}
 );
 

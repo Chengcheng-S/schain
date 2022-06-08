@@ -55,6 +55,8 @@ pallet-simple-pallet = { version = "4.0.0-dev", default-features = false, path =
 
 pallet-use-storage = { version = "4.0.0-dev", default-features = false, path = "../pallets/use-storage" }
 
+pallet-ext = { version = "4.0.0-dev", default-features = false, path = "../pallets/ext-example" }
+
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
@@ -90,8 +92,11 @@ std = [
 	"sp-transaction-pool/std",
 	"sp-version/std",
 	"pallet-simple-pallet/std",
-	"pallet-use-storage/std"
+	"pallet-use-storage/std",
+	"pallet-ext/std"
+
 ]
+
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-support/runtime-benchmarks",
