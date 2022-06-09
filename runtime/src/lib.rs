@@ -276,11 +276,19 @@ impl pallet_use_storage::Config for Runtime {
 	type Event = Event;
 }
 
-
 //ext-pallet
-impl pallet_ext::Config for Runtime{
+impl pallet_ext::Config for Runtime {
 	type Event = Event;
 }
+
+// pallet-use-config
+impl pallet_use_config::Config for Runtime{
+	type Event=Event;
+
+	type StudentNameType = u128;
+	type StudentNumberType = u32;
+}
+
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -305,8 +313,12 @@ construct_runtime!(
 		//storage example
 		Usestoragepallet : pallet_use_storage,
 
-		// ext pallet example
+		// ext pallet example + hook method
 		ExtPallet :pallet_ext,
+
+		// use pallet config example
+		UsePalletConfig: pallet_use_config,
+
 	}
 );
 

@@ -373,5 +373,44 @@ impl<T> PaysFee<T> {
 		}
 ```
 
+## Execution
+Substrate runtime 的执行有Executive module决定，不同于Frame中的其他模块，这不是运行时模块。其调用区块中包含的各种运行时模块。执行公开的`execute_block` 方法
+
+- initialize block
+- Execute extrinsics
+- Finalize block
+
+### initialize block
+system module 和其他runtime module 都执行`on_initialize` 方法。顺序则是按照在runtime/src/lib.rs 中`construct_runtime!` 中定义的顺序执行，但是system永远是第一位执行。
+
+### Execute extrinsics
+当区块初始化完成之后，根据extrinsics 的优先级顺序执行
+
+### Finalize block
+当消息执行完毕之后，Executive module 调用每个模块的`on_idle` 、`on_finalize` 来执行在区块结束时的逻辑。模块在此按照在`construct_runtime!`中定义的顺序执行，system最后执行
+`on_idle` 也会通过区块的剩余权重，以允许根据区块链的使用情况执行。
+
+```rust
+
+pub trait Hooks<BlockNumber> {
+    fn on_finalize(_n: BlockNumber) { ... }
+    fn on_idle(_n: BlockNumber, _remaining_weight: Weight) -> Weight { ... }
+    fn on_initialize(_n: BlockNumber) -> Weight { ... }
+    fn on_runtime_upgrade() -> Weight { ... }
+    fn pre_upgrade() -> Result<(), &'static str> { ... }
+    fn post_upgrade() -> Result<(), &'static str> { ... }
+    fn offchain_worker(_n: BlockNumber) { ... }
+    fn integrity_test() { ... }
+}
+```
+- on_finalize 在区块finalize的时候调用。
+- on_idle 区块finalize的时候调用，不过比on_finalize先调用。如果剩余权重为 0，则不会触发。返回使用的权重，Hook将从当前使用的权重中减去它，并将结果传递给下一个 on_idle （如果存在）。
+- on_initialize  区块初始化时执行，返回区块中固有的weight
+- on_runtime_upgrade  模块升级时使用，这并不包含运行时升级触发的所有pallet 逻辑。该函数将在我们初始化任何运行时状态之前调用，也就是尚未调用 on_initialize。因此，无法访问块编号和任何其他块本地数据等信息。 返回运行时升级消耗的固有0权重。该函数将在初始化任何运行时状态之前调用，也就是尚未调用 on_initialize。因此，无法访问块编号和任何其他块本地数据等信息。 返回运行时升级消耗的不可协商权重。
+- pre_upgrade 在运行时升级之前执行一些预检查。,作为测试工具使用
+- post_upgrade  在运行时升级后执行一些后期检查,仅作为测试工具使用
+- offchain_worker 在一个pallet上实现此函数后可以在此函数中长时间的执行需要链下执行的功能。该函数会在每次区块导入的时候调用。可以读取链的状态
+- integrity_test  集成测试
+
 
 

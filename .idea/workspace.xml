@@ -5,8 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/pallets/use-config/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/use-config/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/storage.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/ext-example/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ext-example/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/ext-example/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ext-example/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +81,7 @@
       <workItem from="1654652532675" duration="1505000" />
       <workItem from="1654671537901" duration="1684000" />
       <workItem from="1654682654863" duration="3137000" />
-      <workItem from="1654736485190" duration="253000" />
+      <workItem from="1654736485190" duration="9898000" />
     </task>
     <servers />
   </component>
