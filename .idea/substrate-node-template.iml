@@ -10,6 +10,9 @@
       <sourceFolder url="file://$MODULE_DIR$/pallets/use-storage/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pallets/ext-example/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pallets/use-config/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/pallets/storage-provider/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/pallets/use-other-pallet/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/pallets/extend-pallet/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

@@ -39,6 +39,9 @@ sp-std = { version = "4.0.0-dev", default-features = false, git = "https://githu
 sp-transaction-pool = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 sp-version = { version = "5.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 
+pallet-contracts = {version="4.0.0-dev",default-features=false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18"}
+node-primitives = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
+
 # Used for the node template's RPCs
 frame-system-rpc-runtime-api = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 pallet-transaction-payment-rpc-runtime-api = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
@@ -59,6 +62,12 @@ pallet-ext = { version = "4.0.0-dev", default-features = false, path = "../palle
 
 pallet-use-config =  { version = "4.0.0-dev", default-features = false, path = "../pallets/use-config" }
 
+pallet-storage-provider={version="4.0.0-dev",default-features = false ,path="../pallets/storage-provider"}
+
+pallet-use-other-pallet = {version="4.0.0-dev",default-features = false ,path="../pallets/use-other-pallet"}
+
+#pallet-extend-pallet= {version="4.0.0-dev",default-features = false ,path="../pallets/extend-pallet"}
+
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 
@@ -76,6 +85,7 @@ std = [
 	"pallet-grandpa/std",
 	"pallet-randomness-collective-flip/std",
 	"pallet-sudo/std",
+	"pallet-contracts/std",
 	"pallet-template/std",
 	"pallet-simple-pallet/std",
 	"pallet-timestamp/std",
@@ -96,6 +106,10 @@ std = [
 	"pallet-use-storage/std",
 	"pallet-ext/std",
 	"pallet-use-config/std",
+	"pallet-storage-provider/std",
+	"pallet-use-other-pallet/std",
+
+#	"pallet-extend-pallet/std",
 
 ]
 

@@ -414,3 +414,46 @@ pub trait Hooks<BlockNumber> {
 
 
 
+## pallet 中调用其他的pallet
+自定义的pallet中使用其他的pallet的情况:
+- 在pallet的config中定义类型，然后runtime中使用时指定这个类型为frame中指定某个现成的pallet。
+- 在pallet的config 中定义类型，然后runtime中使用时指定这个类型为frame中指定某个自定义的pallet。
+- 封装和扩展现有的pallet。
+
+
+
+
+
+
+
+
+
+## pallet debug
+- 可以使用Rust的 log api进行调试
+- 使用log crate `log = { version = "0.4.14", default-features = false }`
+- 使用 `Printable trait`
+  - `Printable trait`是一种在 `no_std` 和 `std` 中从运行时打印的方法。
+  - ```rust
+    use sp_runtime::traits::Printable;
+    use sp_runtime::print;
+    ```
+- substrate `print` function
+  - `  print!("After storing my_val");`
+  - 使用Rust_LOG 启动 `RUST_LOG=runtime=debug ./target/release/node-template --dev`
+
+## substrate randomness
+substrate 中提供了一个`Randomness` trait,其编码了生成随机数的逻辑和使用逻辑之间的接口。允许两个逻辑片段彼此独立编写。
+该trait提供了两种随机性方法：
+- `random_seed`  无需参数，返回一个原始的随机数。**在一个块中多次调用此方法将每次返回相同的值。**
+- `random` 用一个字节数组，用作上下文标识符，并返回一个对该上下文唯一的结果，并且在底层随机源允许的情况下独立于其他上下文。
+### generate randomness
+Substrate 带有两种randomness trait实现:
+- `Randomness Colletctive pallet`  基于collective coin flip，高效但并不安全。此pallet仅在测试消耗随机数的pallet时使用，并不用于生产。
+- `BABE pallet` 它使用可验证的随机函数。该托盘提供生产级随机性，并用于 Polkadot。选择此随机源表明您的区块链使用 Babe 共识。
+
+
+
+
+
+
+

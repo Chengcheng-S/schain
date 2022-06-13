@@ -21,27 +21,27 @@ pub mod pallet {
 
 		//声明StudentNumber类型
 		type StudentNumberType: Member
-		+ Parameter
-		+ AtLeast32BitUnsigned
-		+ Codec
-		+ Copy
-		+ Debug
-		+ Default
-		+ MaxEncodedLen
-		+ MaybeSerializeDeserialize;
+			+ Parameter
+			+ AtLeast32BitUnsigned
+			+ Codec
+			+ Copy
+			+ Debug
+			+ Default
+			+ MaxEncodedLen
+			+ MaybeSerializeDeserialize;
 
 		//声明StudentName类型
 		type StudentNameType: Parameter
-		+ Member
-		+ AtLeast32BitUnsigned
-		+ Codec
-		+ Default
-		+ From<u128>
-		+ Into<u128>
-		+ Copy
-		+ MaxEncodedLen
-		+ MaybeSerializeDeserialize
-		+ Debug;
+			+ Member
+			+ AtLeast32BitUnsigned
+			+ Codec
+			+ Default
+			+ From<u128>
+			+ Into<u128>
+			+ Copy
+			+ MaxEncodedLen
+			+ MaybeSerializeDeserialize
+			+ Debug;
 	}
 
 	// 4. Runtime Storage
@@ -49,7 +49,7 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn students_info)]
 	pub type StudentsInfo<T: Config> =
-	StorageMap<_, Blake2_128Concat, T::StudentNumberType, T::StudentNameType, ValueQuery>;
+		StorageMap<_, Blake2_128Concat, T::StudentNumberType, T::StudentNameType, ValueQuery>;
 
 	// 5. Runtime Events
 	// Can stringify event types to metadata.
@@ -79,7 +79,7 @@ pub mod pallet {
 			ensure_signed(origin)?;
 
 			if StudentsInfo::<T>::contains_key(student_number) {
-				return Err(Error::<T>::SetStudentsInfoDuplicate.into());
+				return Err(Error::<T>::SetStudentsInfoDuplicate.into())
 			}
 
 			StudentsInfo::<T>::insert(&student_number, &student_name);

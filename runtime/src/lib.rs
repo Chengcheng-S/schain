@@ -265,7 +265,7 @@ impl pallet_sudo::Config for Runtime {
 impl pallet_template::Config for Runtime {
 	type Event = Event;
 }
-
+/*
 //simple pallet
 impl pallet_simple_pallet::Config for Runtime {
 	type Event = Event;
@@ -288,6 +288,21 @@ impl pallet_use_config::Config for Runtime{
 	type StudentNameType = u128;
 	type StudentNumberType = u32;
 }
+*/
+
+//pallet storage provider
+impl pallet_storage_provider::Config for Runtime{
+	type Event = Event;
+	type Value = u32;
+}
+
+// pallet use other pallet
+impl pallet_use_other_pallet::Config for Runtime{
+	type Event = Event;
+	type Value = u32;
+
+	type MyStorage = StorageProvider;
+}
 
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -307,6 +322,8 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+
+		/* examples
 		// the simple pallet module
 		Simplepallet : pallet_simple_pallet,
 
@@ -318,6 +335,13 @@ construct_runtime!(
 
 		// use pallet config example
 		UsePalletConfig: pallet_use_config,
+
+		 */
+
+		// storage provider
+		StorageProvider:pallet_storage_provider,
+		UseOtherPallet: pallet_use_other_pallet,
+
 
 	}
 );

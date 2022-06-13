@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/use-config/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/use-config/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/src/traits.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/ext-example/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ext-example/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/ext-example/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ext-example/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/use-storage/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
@@ -22,6 +32,16 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -49,7 +69,11 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="TODO_SCOPE" value="All Places" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/pallets" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
@@ -62,6 +86,13 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Rustcode\substrate-node-template\pallets" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
@@ -81,7 +112,21 @@
       <workItem from="1654652532675" duration="1505000" />
       <workItem from="1654671537901" duration="1684000" />
       <workItem from="1654682654863" duration="3137000" />
-      <workItem from="1654736485190" duration="9898000" />
+      <workItem from="1654736485190" duration="13520000" />
+      <workItem from="1654824766418" duration="4836000" />
+      <workItem from="1654910040209" duration="1406000" />
+      <workItem from="1654917706634" duration="2195000" />
+      <workItem from="1654920237696" duration="273000" />
+      <workItem from="1654920530079" duration="747000" />
+      <workItem from="1654921298857" duration="345000" />
+      <workItem from="1654921661072" duration="29000" />
+      <workItem from="1654921695445" duration="329000" />
+      <workItem from="1654922060619" duration="533000" />
+      <workItem from="1655012675182" duration="9000" />
+      <workItem from="1655086957212" duration="468000" />
+      <workItem from="1655087435533" duration="1169000" />
+      <workItem from="1655088626307" duration="5260000" />
+      <workItem from="1655100525712" duration="4371000" />
     </task>
     <servers />
   </component>
