@@ -10,21 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/extend-pallet/src/lib.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/src/lib.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/storage-provider/src/traits.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/use-other-pallet/src/lib.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/constant-config/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/constant-config/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/constant-config/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/use-config/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
@@ -126,7 +118,9 @@
       <workItem from="1655086957212" duration="468000" />
       <workItem from="1655087435533" duration="1169000" />
       <workItem from="1655088626307" duration="5260000" />
-      <workItem from="1655100525712" duration="4371000" />
+      <workItem from="1655100525712" duration="4657000" />
+      <workItem from="1655109187092" duration="17000" />
+      <workItem from="1655191163574" duration="2324000" />
     </task>
     <servers />
   </component>

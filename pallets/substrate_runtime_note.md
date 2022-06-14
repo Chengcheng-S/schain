@@ -420,7 +420,54 @@ pub trait Hooks<BlockNumber> {
 - 在pallet的config 中定义类型，然后runtime中使用时指定这个类型为frame中指定某个自定义的pallet。
 - 封装和扩展现有的pallet。
 
+确指定pallet的 Config 受要使用的另一个pallet的 Config 的约束。
 
+```rust
+pub trait Config: frame_system::Config + some_pallet::Config {
+    // --snip--
+}
+```
+
+耦合性低的另一只写法
+
+在runtime 配置，此类型的实际发生在pallet之外(runtime/src/lib.rs)。可以让另一个实现了这个trait的pallet进行配置，或者声明一个全新的struct，实现这些trait，然后再runtime中进行配置
+
+```rust
+pub trait Currency<AccountId> {
+    // -- snip --
+    fn transfer(
+        source: &AccountId,
+        dest: &AccountId,
+        value: Self::Balance,
+        // don't worry about the last parameter for now
+        existence_requirement: ExistenceRequirement,
+    ) -> DispatchResult;
+}
+```
+
+
+
+然后在自定义的pallet中定义相关的类型，如此就可以通过`T::mycurrency::transfer()`
+
+```rust
+pub trait Config: frame_system::Config {
+    type MyCurrency: Currency<Self::AccountId>;
+}
+
+impl<T: Config> Pallet<T> {
+    pub fn my_function() {
+        T::MyCurrency::transfer(&buyer, &seller, price, ExistenceRequirement::KeepAlive)?;
+    }
+}
+```
+
+然后再runtime中进行`my_pallet` 的配置
+
+```rust
+impl my_pallet::Config for Runtime{
+    type MyCurrency = Balances;
+}
+```
 
 
 

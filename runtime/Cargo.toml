@@ -66,7 +66,11 @@ pallet-storage-provider={version="4.0.0-dev",default-features = false ,path="../
 
 pallet-use-other-pallet = {version="4.0.0-dev",default-features = false ,path="../pallets/use-other-pallet"}
 
+pallet-constant-config = {version="4.0.0-dev",default-features = false ,path="../pallets/constant-config"}
+
 #pallet-extend-pallet= {version="4.0.0-dev",default-features = false ,path="../pallets/extend-pallet"}
+
+
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
@@ -110,6 +114,7 @@ std = [
 	"pallet-use-other-pallet/std",
 
 #	"pallet-extend-pallet/std",
+	"pallet-constant-config/std",
 
 ]
 
