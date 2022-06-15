@@ -16,6 +16,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = ["derive"] }
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 
+log={version="0.4.14",default-features=false}
+
 pallet-aura = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 pallet-balances = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
@@ -70,6 +72,7 @@ pallet-constant-config = {version="4.0.0-dev",default-features = false ,path="..
 
 #pallet-extend-pallet= {version="4.0.0-dev",default-features = false ,path="../pallets/extend-pallet"}
 pallet-ocw-example= {version="4.0.0-dev",default-features = false ,path="../pallets/ocw-example"}
+pallet-ocw-signed-example= {version="4.0.0-dev",default-features = false ,path="../pallets/ocw-signed-example"}
 
 
 
@@ -116,8 +119,9 @@ std = [
 
 #	"pallet-extend-pallet/std",
 	"pallet-constant-config/std",
-	"pallet-ocw-example/std",
 
+	"pallet-ocw-example/std",
+	"pallet-ocw-signed-example/std",
 ]
 
 runtime-benchmarks = [

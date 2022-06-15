@@ -1,4 +1,100 @@
 ## substrate off-chain-worker
+
+### signed tx
+第一部分
+这部分主要是用来在offchain worker提交签名交易时的签名的子模块。在实际的开发中，这部分基本上是固定的写法。在substrate中支持ed25519和sr25519，我们此处使用的是sr29915作为例子。其中KEY_TYPE是offchain worker签名时检索key使用的类型，由开发者指定，我们这里指定为“demo”。
+
+第二部分主要是支持offchain提交签名交易的config配置，需要注意两点：
+
+1、config需要继承 CreateSignedTransaction；
+
+2、需要定义类型type AuthorityId: AppCrypto<Self::Public, Self::Signature>;
+
+第三部分。从上面的代码可以知道，调用offchain worker是在钩子函数中实现，这个比较好理解。在offchain worker中调用交易的方式是这样，
+```rust
+let result = signer.send_signed_transaction(|_account| {
+                Call::off_chain_signed_tx { number };
+            });
+```
+然后就是在runtime中的配置
+```rust
+///  impl sendtransactiontypes for runtime
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+    where Call: From<C>,
+{
+    type Extrinsic = UncheckedExtrinsic;
+    type OverarchingCall = Call;
+}
+
+pub struct  MyAuthorityId;
+
+impl frame_system::offchain::AppCrypto<<Signature as Verify>::Signer, Signature> for MyAuthorityId {
+	type RuntimeAppPublic = pallet_ocw_sigtx::crypto::Public;
+	type GenericSignature = sp_core::sr25519::Signature;
+	type GenericPublic = sp_core::sr25519::Public;
+}
+
+/// impl send signed tx by off-chain-worker on chain
+impl pallet_ocw_signed_example::Config for Runtime {
+    type Event = Event;
+	type AuthorityId = MyAuthorityId;
+}
+
+impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
+    where
+        Call: From<LocalCall>,
+{
+    fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+        call: Call,
+        public: <Signature as sp_runtime::traits::Verify>::Signer,
+        account: AccountId,
+        index: Index,
+    ) -> Option<(Call, <UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload)> {
+        let period = BlockHashCount::get() as u64;
+        let current_block = System::block_number()
+            .saturated_into::<u64>()
+            .saturating_sub(1);
+        let tip = 0;
+
+
+        let extra: SignedExtra = (
+
+            frame_system::CheckSpecVersion::<Runtime>::new(),
+            frame_system::CheckTxVersion::<Runtime>::new(),
+            frame_system::CheckGenesis::<Runtime>::new(),
+            frame_system::CheckEra::<Runtime>::from(generic::Era::mortal(period, current_block)),
+            frame_system::CheckNonce::<Runtime>::from(index),
+            frame_system::CheckWeight::<Runtime>::new(),
+            pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+        );
+
+        let raw_payload = SignedPayload::new(call, extra)
+            .map_err(|e| {
+                log::warn!("Unable to create signed payload: {:?}", e);
+            })
+            .ok()?;
+        let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
+        let address = account;
+        let (call, extra, _) = raw_payload.deconstruct();
+        Some((call, (sp_runtime::MultiAddress::Id(address), signature.into(), extra)))
+    }
+}
+
+
+impl frame_system::offchain::SigningTypes for Runtime {
+    type Public = <Signature as sp_runtime::traits::Verify>::Signer;
+    type Signature = Signature;
+}
+
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+    where
+        Call: From<C>,
+{
+    type OverarchingCall = Call;
+    type Extrinsic = UncheckedExtrinsic;
+}
+```
+
 ### unsigned tx
 pallet Config
 ```rust

@@ -10,12 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/ocw.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/Cargo.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/constant-config/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/constant-config/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/substrate_runtime_note.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pallets/ocw.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ocw.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
@@ -47,6 +48,9 @@
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="zu3fa9ez" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="1" />
   </component>
   <component name="ProjectId" id="2AFRzJLqFCzjA1WBSarQrILwpU6" />
   <component name="ProjectLevelVcsManager">
@@ -123,7 +127,7 @@
       <workItem from="1655208041033" duration="2000" />
       <workItem from="1655259938695" duration="68000" />
       <workItem from="1655260075589" duration="13000" />
-      <workItem from="1655260117821" duration="10437000" />
+      <workItem from="1655260117821" duration="16082000" />
     </task>
     <servers />
   </component>
