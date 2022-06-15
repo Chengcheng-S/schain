@@ -3849,6 +3849,7 @@ dependencies = [
  "pallet-contracts",
  "pallet-ext",
  "pallet-grandpa",
+ "pallet-ocw-example",
  "pallet-randomness-collective-flip",
  "pallet-simple-pallet",
  "pallet-storage-provider",
@@ -4187,6 +4188,21 @@ dependencies = [
  "sp-session",
  "sp-staking 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
  "sp-std 4.0.0 (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+]
+
+[[package]]
+name = "pallet-ocw-example"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+ "frame-support 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+ "frame-system 4.0.0-dev (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core 6.0.0 (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+ "sp-io 6.0.0 (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
+ "sp-runtime 6.0.0 (git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.23)",
 ]
 
 [[package]]

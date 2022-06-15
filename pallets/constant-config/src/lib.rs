@@ -12,6 +12,7 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
     use crate::pallet;
     use frame_support::sp_runtime::traits::Zero;
+
     /// Configure the pallet by specifying the parameters and types on which it depends.
     #[pallet::config]
     pub trait Config: frame_system::Config {
@@ -70,7 +71,10 @@ pub mod pallet {
     #[pallet::call]
     impl<T: Config> Pallet<T> {
         /// user add value
-        #[pallet::weight(10_000)]
+        #[pallet::weight(
+
+        10_000
+        )]
         pub fn Add_Value(origin: OriginFor<T>, value: u32) -> DispatchResult {
             // Check that the extrinsic was signed and get the signer.
             // This function will return an error if the extrinsic is not signed.
@@ -87,7 +91,7 @@ pub mod pallet {
             // Update storage.
             <Singlevalue<T>>::put(res_value);
             // Emit an event.
-            Self::deposit_event(Event::Added(value,curr_value,res_value));
+            Self::deposit_event(Event::Added(value, curr_value, res_value));
             // Return a successful DispatchResultWithPostInfo
             Ok(().into())
         }

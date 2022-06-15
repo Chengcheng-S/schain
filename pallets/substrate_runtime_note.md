@@ -258,6 +258,9 @@ fn handle_users(origin, calls: Vec<User>) {
 }
 ```
 
+- PaysFee:指定dispatch是否支付费用
+- GetDispatchInfo: 使用`#[weight]` 携带信息
+- DispatchResultWithPostInfo：执行外部函数后提供新的权重信息
 
 
 ### post dispatch weight correction
@@ -279,13 +282,47 @@ fn expensive_or_cheap(input: u64) -> DispatchResultWithPostInfo {
 
 ### 自定义weight计算类型
 
+import weight dependencies
+```rust
+use frame_support::Parameter;
+use frame_support::weights::{GetDispatchInfo, Pays};
+use sp_runtime::traits::Dispatchable;
+use frame_support::pallet_prelude::{DispatchResultWithPostInfo};
+use frame_support::dispatch::DispatchResult;
+```
+
+计算方法的最大权重：`call.get_dispatch_info()`
+
+```rust
+#[weight = {
+  let dispatch_info = call.get_dispatch_info();
+  (dispatch_info.weight, dispatch_info.class, Pays::Yes)
+  }]
+    // Define a function header that returns DispatchResultWithPostInfo.
+    fn do_three_reads(origin, call: Box<<T as Config>::Call>) -> DispatchResultWithPostInfo {
+    // Function logic.
+    }
+```
+
+函数调用的实际权重取决于外部的逻辑。执行后，可以在计算实际重量后退还费用。使用 Pays Enum 和 DbWeight 处理此问题
+
+```rust
+// Function returns a calculation corresponding to 3 DB reads
+let check_logic_weight = T::DbWeight::get().reads(3);
+return Ok(Some(check_logic_weight).into())
+
+//Remove fee associated to weight
+Ok(Pays::Yes.into())
+```
+
 自定义的类型必须满足trait：
 
 - `WeightData<T>`
 - `Classify<T>` 调度的类型
 - `PaysFee<T>`  确定sender 是否支付fee
 
-> 然后，Substrate 将两个特征的输出信息捆绑到 [DispatchInfo] 结构中，并通过为所有 Call 变体和不透明的外部类型实现 [GetDispatchInfo] 来提供它。这由系统和执行模块在内部使用
+> 然后，Substrate 将两个特征的输出信息捆绑到 [DispatchInfo] 结构中，并通过为所有 Call 变体和外部类型实现 [GetDispatchInfo] 来提供它。这由系统和执行模块在内部使用
+
 
 ```rust
 struct LenWeight(u32);
@@ -497,6 +534,8 @@ substrate 中提供了一个`Randomness` trait,其编码了生成随机数的逻
 Substrate 带有两种randomness trait实现:
 - `Randomness Colletctive pallet`  基于collective coin flip，高效但并不安全。此pallet仅在测试消耗随机数的pallet时使用，并不用于生产。
 - `BABE pallet` 它使用可验证的随机函数。该托盘提供生产级随机性，并用于 Polkadot。选择此随机源表明您的区块链使用 Babe 共识。
+
+## ocw off-chain-worker
 
 
 

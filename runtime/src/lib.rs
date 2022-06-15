@@ -295,24 +295,36 @@ impl pallet_use_config::Config for Runtime{
 */
 
 //pallet storage provider
-impl pallet_storage_provider::Config for Runtime {
-    type Event = Event;
-    type Value = u32;
-}
-
-// pallet use other pallet
-impl pallet_use_other_pallet::Config for Runtime {
-    type Event = Event;
-    type Value = u32;
-
-    type MyStorage = StorageProvider;
-}
+// impl pallet_storage_provider::Config for Runtime {
+//     type Event = Event;
+//     type Value = u32;
+// }
+//
+// // pallet use other pallet
+// impl pallet_use_other_pallet::Config for Runtime {
+//     type Event = Event;
+//     type Value = u32;
+//
+//     type MyStorage = StorageProvider;
+// }
 
 
 impl pallet_constant_config::Config for Runtime {
     type Event = Event;
     type MaxAddend = MaxAdded;
     type ClearFrequency = ClearBlock;
+}
+
+/// ocw submit unsigned tx
+impl pallet_ocw_example::Config for Runtime{
+	type Event= Event;
+}
+///  impl sendtransactiontypes for runtime
+impl<C>frame_system::offchain::SendTransactionTypes<C> for Runtime
+	where Call: From<C>,
+{
+	type Extrinsic = UncheckedExtrinsic;
+	type OverarchingCall = Call;
 }
 
 
@@ -348,13 +360,19 @@ construct_runtime!(
 		UsePalletConfig: pallet_use_config,
 
 		 */
-
+	/*
 		// storage provider
 		StorageProvider:pallet_storage_provider,
 		UseOtherPallet: pallet_use_other_pallet,
 
+
+	 */
 		// constant config
 		PalletConstantConfig: pallet_constant_config,
+
+
+		// UseOCWexample :pallet_ocw_example{Pallet, Call, Storage, Event<T>, ValidateUnsigned}，
+		UseOCWexample :pallet_ocw_example,
 
 	}
 );

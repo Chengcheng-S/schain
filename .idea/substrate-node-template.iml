@@ -14,6 +14,7 @@
       <sourceFolder url="file://$MODULE_DIR$/pallets/use-other-pallet/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pallets/extend-pallet/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pallets/constant-config/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/pallets/ocw-example/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

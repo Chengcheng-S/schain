@@ -69,6 +69,7 @@ pallet-use-other-pallet = {version="4.0.0-dev",default-features = false ,path=".
 pallet-constant-config = {version="4.0.0-dev",default-features = false ,path="../pallets/constant-config"}
 
 #pallet-extend-pallet= {version="4.0.0-dev",default-features = false ,path="../pallets/extend-pallet"}
+pallet-ocw-example= {version="4.0.0-dev",default-features = false ,path="../pallets/ocw-example"}
 
 
 
@@ -115,6 +116,7 @@ std = [
 
 #	"pallet-extend-pallet/std",
 	"pallet-constant-config/std",
+	"pallet-ocw-example/std",
 
 ]
 
