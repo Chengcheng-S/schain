@@ -10,13 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pallets/ocw-signed-example/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/substrate-node-template.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/substrate-node-template.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pallets/runtime_upgrade.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pallets/ocw.md" beforeDir="false" afterPath="$PROJECT_DIR$/pallets/ocw.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/src/lib.rs" afterDir="false" />
     </list>
@@ -127,7 +123,9 @@
       <workItem from="1655208041033" duration="2000" />
       <workItem from="1655259938695" duration="68000" />
       <workItem from="1655260075589" duration="13000" />
-      <workItem from="1655260117821" duration="16082000" />
+      <workItem from="1655260117821" duration="16635000" />
+      <workItem from="1655294617548" duration="70000" />
+      <workItem from="1655342883442" duration="5396000" />
     </task>
     <servers />
   </component>
