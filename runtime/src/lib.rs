@@ -153,7 +153,7 @@ parameter_types! {
 	pub const MaxAdded :u32= 15688;
 	pub const ClearBlock:u32= 10;
 
-    /// runtime upgrade config
+    /// runtime upgrade config  that can unfork
     pub MaximumSchedulerWeight: Weight = 10_000_000;
     pub const MaxScheduledPerBlock: u32 = 50;
 }

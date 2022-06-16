@@ -123,4 +123,25 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 - `transaction_version` dispatch function interface version
 - `state_version` runtime state version
 
+使用
+```shell
+cargo build --release -p node-template-reuntime   
+```
+然后将编译后的wasm文件通过polkadot.js 上传 提交之后即可无分叉升级。
+
+## storage migrations with FRAME
+FRAME 存储迁移是通过 `OnRuntimeUpgrade` 特征实现的，它指定了一个函数 `on_runtime_upgrade`。该函数提供了一个钩子，
+允许运行时开发人员指定将在运行时升级之后但在任何外部函数甚至 `on_initialize` 函数执行之前立即运行的逻辑
+
+准备存储迁移意味着runtime升级， Substrate 存储库使用 `E1-runtimemigration` 标签来指定此类更改。.
+
+
+默认情况下，FRAME 会根据托盘在construct_runtime 中出现的顺序对on_runtime_upgrade 函数的执行进行排序。它们将以相反（从上到下）的顺序运行
+FRAME storage 迁移将按照以下顺序运行：
+- `frame_system::on_runtime_upgrade`
+- 自定义的`on_runtime_upgrade`
+- 运行时包含的pallet中定义的所有 `on_runtime_upgrade` 函数，按上述顺序
+
+
+
 
