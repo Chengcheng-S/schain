@@ -42,11 +42,11 @@ sp-std = { version = "4.0.0-dev", default-features = false, git = "https://githu
 sp-transaction-pool = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 sp-version = { version = "5.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 
-pallet-contracts = {version="4.0.0-dev",default-features=false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18"}
+pallet-contracts = {version="4.0.0-dev",default-features=false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23"}
 #runtime upgrade by sudo、scheduler pallet
 pallet-scheduler = {version="4.0.0-dev",default-features=false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23"}
 
-node-primitives = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.18" }
+node-primitives = { version = "2.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
 
 # Used for the node template's RPCs
 frame-system-rpc-runtime-api = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.23" }
