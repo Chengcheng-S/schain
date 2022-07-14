@@ -10,10 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acde32c-5815-489e-991f-85db457304a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pallets/rpc.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/Cargo.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,13 +80,6 @@
       <recent name="D:\Rustcode\substrate-node-template\pallets" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-  </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$PROJECT_DIR$/../../RustEnv/.cargo/bin" />
     <option name="version" value="2" />
@@ -131,7 +121,9 @@
       <workItem from="1655260117821" duration="16635000" />
       <workItem from="1655294617548" duration="70000" />
       <workItem from="1655342883442" duration="8037000" />
-      <workItem from="1656207436877" duration="4590000" />
+      <workItem from="1656207436877" duration="5192000" />
+      <workItem from="1656241190779" duration="24000" />
+      <workItem from="1656824601990" duration="82000" />
     </task>
     <servers />
   </component>
