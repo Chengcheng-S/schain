@@ -124,7 +124,7 @@ pub mod pallet {
             let multisig_members = MultisigMembers::<T>::get();
             let multisig_members_len = multisig_members.len();
             if multisig_members_len == T::MaxMultisgNumber as usize {
-                return Err(Error::<T>::MaxMultisgNumber.into());
+                return Err(Error::<T>::MaxMultisigNumber.into());
             } else {
                 let proposal_id = T::MaxPropolasNumber::get() as u32;
                 // let threshold: PropoaslThreshold = match threshold {
