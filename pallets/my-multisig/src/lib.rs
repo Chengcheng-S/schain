@@ -3,7 +3,6 @@
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/reference/frame-pallets/>
-pub use pallet::*;
 
 #[cfg(test)]
 mod mock;
@@ -20,7 +19,7 @@ pub use weights::*;
 #[frame_support::pallet]
 pub mod pallet {
     use core::marker::PhantomData;
-    use alloc::vec::Vec;
+    use std::vec::Vec;
     use super::*;
     use frame_support::pallet_prelude::*;
     use frame_system::pallet_prelude::*;
@@ -61,7 +60,7 @@ pub mod pallet {
     #[pallet::generate_deposit(pub (super) fn deposit_event)]
     pub enum Event<T: Config> {
         CreateMultisig { members: Vec<T::AccountId> },
-        CreateProposal { who: T::AccountId, threshold: PropoaslThreshold, proposal_id: u32 },
+        CreateProposal { who: T::AccountId, threshold: u32, proposal_id: u32 },
         ApprovalProposal { proposal_id: u32, who: T::AccountId },
         RejectProposal { proposal_id: u32, who: T::AccountId },
     }
@@ -100,8 +99,8 @@ pub mod pallet {
             let who = ensure_signed(origin)?;
 
             match members.len() {
-                0..=T::MinMultisgNumber => return Err(Error::<T>::MinMultisigNumber.into()),
-                T::MinMultisgNumber..=T::MaxMultisgNumber => {
+                0u32..=T::MinMultisgNumber => return Err(Error::<T>::MinMultisigNumber.into()),
+                T::MinMultisgNumber ..=T::MaxMultisgNumber => {
                     MultisigMembers::<T>::put(members.clone());
                     Self::deposit_event(Event::CreateMultisig { members });
                 }
@@ -128,12 +127,12 @@ pub mod pallet {
                 return Err(Error::<T>::MaxMultisgNumber.into());
             } else {
                 let proposal_id = T::MaxPropolasNumber::get() as u32;
-                let threshold: PropoaslThreshold = match threshold {
-                    1 => PropoaslThreshold::All,
-                    2 => PropoaslThreshold::MoreThanhalf,
-                    3|_ => PropoaslThreshold::MoreThanTwoThirds,
-                    4 => PropoaslThreshold::MoreThanhalf,
-                };
+                // let threshold: PropoaslThreshold = match threshold {
+                //     1 => PropoaslThreshold::All,
+                //     2 => PropoaslThreshold::MoreThanhalf,
+                //     3|_ => PropoaslThreshold::MoreThanTwoThirds,
+                //     4 => PropoaslThreshold::MoreThanhalf,
+                // };
 
                 Self::deposit_event(Event::CreateProposal { threshold, who, proposal_id });
             }
