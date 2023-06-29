@@ -44,14 +44,13 @@ fmtcheck:
 	cargo fmt --all -- --check
 
 .PHONY: taplocheck ## taplo fmt check
+#  cargo install taplo-cli --locked
 taplocheck:
 	taplo fmt --check
 
 .PHONY: fmt ## cargo fmt all && taplo fmt all
 fmt:
 	cargo fmt --all && taplo fmt
-	cd tee-worker && cargo fmt --all && taplo fmt
-	cd tee-worker/enclave-runtime && cargo fmt --all
 
 
 
