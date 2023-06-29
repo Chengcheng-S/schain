@@ -1,8 +1,24 @@
 [workspace]
+resolver = "2"
 members = [
     "node",
     "pallets/template",
+    "pallets/my-multisig",
     "runtime",
 ]
 [profile.release]
 panic = "unwind"
+opt-level = 3
+
+[profile.dev]
+# https://internals.rust-lang.org/t/help-test-faster-incremental-debug-macos-builds-on-nightly/14016
+split-debuginfo = 'unpacked'
+
+[profile.dev.package.backtrace]
+inherits = "release"
+
+[profile.production]
+codegen-units = 1
+inherits = "release"
+lto = true
+strip = "symbols"
