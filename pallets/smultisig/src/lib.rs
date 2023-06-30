@@ -3,6 +3,8 @@
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/reference/frame-pallets/>
+pub use pallet::*;
+
 pub mod weights;
 
 pub use weights::*;
@@ -91,7 +93,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// create multisig group
 		#[pallet::call_index(0)]
-		#[pallet::weight(0)]
+		#[pallet::weight(Weight::from_parts(1_000, 0))]
 		pub fn create_multisig_group(
 			origin: OriginFor<T>,
 			members: Vec<T::AccountId>,
@@ -108,7 +110,6 @@ pub mod pallet {
 					Self::deposit_event(Event::CreateMultisig { who });
 					// todo! Dynamically adjust signing thresholds
 				},
-				_ => return Err(Error::<T>::MaxMultisigNumber.into()),
 			}
 
 			// Return a successful DispatchResultWithPostInfo
@@ -117,7 +118,7 @@ pub mod pallet {
 
 		/// create proposal
 		#[pallet::call_index(1)]
-		#[pallet::weight(0)]
+		#[pallet::weight(Weight::from_parts(3_000, 0))]
 		pub fn create_propoasl(origin: OriginFor<T>, threshold: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 

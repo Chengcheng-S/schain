@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "node",
     "pallets/template",
-    "pallets/my-multisig",
+    "pallets/smultisig",
     "runtime",
 ]
 [profile.release]

@@ -1,5 +1,5 @@
 [package]
-name = "pallet-mymultisig"
+name = "pallet-smultisig"
 version = "0.1.0"
 description = "my multisig define a specific multisig group"
 authors = ["Cheng"]

@@ -48,7 +48,7 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the template pallet.
 pub use pallet_template;
 
-pub use pallet_mymultisig;
+pub use pallet_smultisig;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -275,9 +275,9 @@ impl pallet_template::Config for Runtime {
 	type WeightInfo = pallet_template::weights::SubstrateWeight<Runtime>;
 }
 
-impl pallet_mymultisig::Config for Runtime {
+impl pallet_smultisig::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = pallet_mymultisig::weights::SubstrateWeight<Runtime>;
+	type WeightInfo = ();
 
 	type MaxMultisigNumber = ConstU32<5>;
 	type MaxProposalNumber = ConstU32<10>;
@@ -301,7 +301,7 @@ construct_runtime!(
 		Sudo: pallet_sudo=6,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template=55,
-		MultisigMoudle: pallet_mymultisig=56,
+		MultisigMoudle: pallet_smultisig=56,
 	}
 );
 
