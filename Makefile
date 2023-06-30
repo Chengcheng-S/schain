@@ -53,5 +53,16 @@ fmt:
 	cargo fmt --all && taplo fmt
 
 
+# build
+.PHONY: build ## build node
+build:
+	cargo build --release
+	mkdir -p ./build
+	cp ./target/release/node-template  ./build/node
+
+# clean
+.PHONY: clean ## clean node
+clean:
+	rm -rf ./build
 
 
