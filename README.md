@@ -1,5 +1,7 @@
 # Schain
-This is a chain based on substrate, and then some on-chain modules are added according to their own ideas
+Do everything that you think is right
+
+This is a chain based on substrate, and then some on-chain modules are added according to my own ideas
 
 ## Getting Started
 
@@ -24,13 +26,11 @@ rustup target add wasm32-unknown-unknown --toolchain nightly
 ```shell
 make help
 ```
- 
 Use the following command to build the node without launching it:
 
 ```sh
 make build
 ```
-
 ### Embedded Docs
 
 After you build the project, you can use the following command to explore its parameters and subcommands:
