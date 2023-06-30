@@ -106,4 +106,3 @@ pub mod pallet {
 		}
 	}
 }
-
