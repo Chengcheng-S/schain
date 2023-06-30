@@ -27,10 +27,13 @@ pub mod pallet {
 		/// Type representing the weight of this pallet
 		type WeightInfo: WeightInfo;
 
+		#[pallet::constant]
 		type MaxMultisigNumber: Get<u32>;
 
+		#[pallet::constant]
 		type MaxProposalNumber: Get<u32>;
 
+		#[pallet::constant]
 		type MinMultisigNumber: Get<u32>;
 	}
 
@@ -105,9 +108,7 @@ pub mod pallet {
 					Self::deposit_event(Event::CreateMultisig { who });
 					// todo! Dynamically adjust signing thresholds
 				},
-				_ => {
-					return Err(Error::<T>::MaxMultisigNumber.into());
-				},
+				_ => return Err(Error::<T>::MaxMultisigNumber.into()),
 			}
 
 			// Return a successful DispatchResultWithPostInfo
@@ -127,7 +128,7 @@ pub mod pallet {
 					let multisig_members_len = multisig_members.len();
 
 					if multisig_members_len > 10 {
-						return Err(Error::<T>::MaxPropolasNumber.into());
+						return Err(Error::<T>::MaxPropolasNumber.into())
 					} else {
 						let proposal_id = T::MaxProposalNumber::get();
 						// let threshold: PropoaslThreshold = match threshold {

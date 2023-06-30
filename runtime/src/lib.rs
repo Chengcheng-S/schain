@@ -48,6 +48,8 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the template pallet.
 pub use pallet_template;
 
+pub use pallet_mymultisig;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -273,14 +275,13 @@ impl pallet_template::Config for Runtime {
 	type WeightInfo = pallet_template::weights::SubstrateWeight<Runtime>;
 }
 
-impl pallet_my_multisig::Config for Runtime {
+impl pallet_mymultisig::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = pallet_my_multisig::weights::SubstrateWeight<Runtime>;
-	type MaxMultisgNumber = ConstU32<5>;
+	type WeightInfo = pallet_mymultisig::weights::SubstrateWeight<Runtime>;
 
-	type MaxPropolasNumber = ConstU32<10>;
-
-	type MinMultisgNumber = ConstU32<3>;
+	type MaxMultisigNumber = ConstU32<5>;
+	type MaxProposalNumber = ConstU32<10>;
+	type MinMultisigNumber = ConstU32<3>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -291,17 +292,16 @@ construct_runtime!(
 		NodeBlock = opaque::Block,
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
-		System: frame_system,
-		Timestamp: pallet_timestamp,
-		Aura: pallet_aura,
-		Grandpa: pallet_grandpa,
-		Balances: pallet_balances,
-		TransactionPayment: pallet_transaction_payment,
-		Sudo: pallet_sudo,
+		System: frame_system=0,
+		Timestamp: pallet_timestamp=1,
+		Aura: pallet_aura=2,
+		Grandpa: pallet_grandpa=3,
+		Balances: pallet_balances=4,
+		TransactionPayment: pallet_transaction_payment=5,
+		Sudo: pallet_sudo=6,
 		// Include the custom logic from the pallet-template in the runtime.
-		TemplateModule: pallet_template,
-
-		MyMultisig: pallet_my_multisig,
+		TemplateModule: pallet_template=55,
+		MultisigMoudle: pallet_mymultisig=56,
 	}
 );
 

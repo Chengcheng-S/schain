@@ -4461,7 +4461,7 @@ dependencies = [
  "pallet-aura",
  "pallet-balances",
  "pallet-grandpa",
- "pallet-my-multisig",
+ "pallet-mymultisig",
  "pallet-sudo",
  "pallet-template",
  "pallet-timestamp",
@@ -4747,7 +4747,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-my-multisig"
+name = "pallet-mymultisig"
 version = "0.1.0"
 dependencies = [
  "frame-benchmarking",
