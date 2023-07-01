@@ -21,22 +21,22 @@ pub mod pallet {
 	#[pallet::pallet]
 	pub struct Pallet<T>(PhantomData<T>);
 
-	/// Configure the pallet by specifying the parameters and types on which it depends.
+
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
-		/// Because this pallet emits events, it depends on the runtime's definition of an event.
+
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		/// Type representing the weight of this pallet
+
 		type WeightInfo: WeightInfo;
 
 		#[pallet::constant]
-		type MaxMultisigNumber: Get<u32>;
+		type MaxMultisigNumber: Get<u32>; //5
 
 		#[pallet::constant]
-		type MaxProposalNumber: Get<u32>;
+		type MaxProposalNumber: Get<u32>;  // 15
 
 		#[pallet::constant]
-		type MinMultisigNumber: Get<u32>;
+		type MinMultisigNumber: Get<u32>; // 2
 	}
 
 	#[pallet::storage]
@@ -46,11 +46,11 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
-	pub type Propoasals<T: Config> = StorageMap<
+	pub type Proposals<T: Config> = StorageMap<
 		_,
 		Twox64Concat,
 		u32,
-		BoundedVec<T::AccountId, T::MaxMultisigNumber>,
+		BoundedVec<Proposal, T::MaxMultisigNumber>,
 		ValueQuery,
 	>;
 
@@ -59,35 +59,67 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub (super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		CreateMultisig { who: T::AccountId },
-		CreateProposal { who: T::AccountId, threshold: u32, proposal_id: u32 },
-		ApprovalProposal { proposal_id: u32, who: T::AccountId },
-		RejectProposal { proposal_id: u32, who: T::AccountId },
+		CreateMultisig {
+			who: T::AccountId,
+			dyn_threshold: u32,
+		},
+		CreateProposal {
+			who: T::AccountId,
+			proposal_id: u32,
+			threshold: ProposalThreshold,
+			status: ProposalStatus,
+		},
+		ApprovalProposal {
+			proposal_id: u32,
+			who: T::AccountId,
+		},
+		RejectProposal {
+			proposal_id: u32,
+			who: T::AccountId,
+		},
 	}
 
+	#[derive(PartialEq, Eq, Debug, Clone, Copy, Encode, Decode,TypeInfo,MaxEncodedLen)]
 	pub enum ProposalStatus {
 		Pending,
 		Rejected,
 		Approved,
 	}
 
-	#[derive(Clone, PartialEq, Eq, Debug)]
-	pub enum PropoaslThreshold {
-		All,
-		MoreThanhalf,
-		MoreThanTwoThirds,
-		MoreThanThreeQuarters,
+	#[derive(PartialEq, Eq, Clone, Copy,Encode, Decode,TypeInfo,MaxEncodedLen)]
+	pub struct Proposal {
+		pub proposal_id: u32,
+		pub threshold: ProposalThreshold,
+		pub status: ProposalStatus,
+	}
+
+	#[derive(Clone, PartialEq, Eq, Debug, Copy,Encode, Decode,TypeInfo,MaxEncodedLen)]
+	pub enum ProposalThreshold {
+		All,  // 100%
+		MoreThanhalf, // 1/2 +
+		MoreThanTwoThirds, //  2/3 +
+		MoreThanThreeQuarters, // 3/4 +
+	}
+
+	#[derive(Clone, PartialEq, Eq, Debug, Copy,Encode, Decode,TypeInfo,MaxEncodedLen)]
+	pub enum DynThreshold {
+		All, //100%
+		MoreThanhalf, //1/2 +
+		MoreThanTwoThirds, // 2/3 +
 	}
 
 	// Errors inform users that something went wrong.
 	#[pallet::error]
 	pub enum Error<T> {
 		/// Error names should be descriptive.
-		MaxPropolasNumber,
+		MaxProposalNumber,
 		MinMultisigNumber,
 		MaxMultisigNumber,
 		NotFoundAccount,
 	}
+
+	#[pallet::hooks]
+	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
@@ -107,7 +139,9 @@ pub mod pallet {
 				true => return Err(Error::<T>::MinMultisigNumber.into()),
 				false => {
 					Self::change_multisig_members(&mut members)?;
-					Self::deposit_event(Event::CreateMultisig { who });
+					let dyn_threshold = Self::calculate_dyn_threshold(&members);
+
+					Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
 					// todo! Dynamically adjust signing thresholds
 				},
 			}
@@ -129,17 +163,21 @@ pub mod pallet {
 					let multisig_members_len = multisig_members.len();
 
 					if multisig_members_len > 10 {
-						return Err(Error::<T>::MaxPropolasNumber.into())
+						return Err(Error::<T>::MaxProposalNumber.into())
 					} else {
 						let proposal_id = T::MaxProposalNumber::get();
-						// let threshold: PropoaslThreshold = match threshold {
-						//     1 => PropoaslThreshold::All,
-						//     2 => PropoaslThreshold::MoreThanhalf,
-						//     3|_ => PropoaslThreshold::MoreThanTwoThirds,
-						//     4 => PropoaslThreshold::MoreThanhalf,
-						// };
+						let threshold = match threshold {
+							1 => ProposalThreshold::All,
+							2 => ProposalThreshold::MoreThanhalf,
+							3 | _ => ProposalThreshold::MoreThanTwoThirds,
+						};
+						let status = ProposalStatus::Pending;
 
-						Self::deposit_event(Event::CreateProposal { threshold, who, proposal_id });
+						let mut proposal = Proposal { proposal_id, threshold, status  };
+
+                        Self::insert_proposal(&mut proposal)?;
+
+						Self::deposit_event(Event::CreateProposal { who, proposal_id, threshold, status });
 					}
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
@@ -158,6 +196,23 @@ pub mod pallet {
 				Ok(())
 			})?;
 			Ok(())
+		}
+
+        fn insert_proposal(proposal: &mut Proposal) -> DispatchResult {
+             Proposals::<T>::try_mutate(proposal.proposal_id, |pro|->DispatchResult{
+				 pro.try_push(proposal.clone()).map_err(|_| Error::<T>::MaxProposalNumber)?;
+				 Ok(())
+			 })?;
+            Ok(())
+        }
+
+		fn calculate_dyn_threshold(members: &Vec<T::AccountId>) -> u32 {
+			match members.len() {
+				0..=5 => 1,
+				6..=10 => 2,
+				_=> 3,
+				// todo! some details doesn't deal with
+			}
 		}
 	}
 }

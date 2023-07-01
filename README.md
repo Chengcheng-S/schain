@@ -36,7 +36,7 @@ make build
 After you build the project, you can use the following command to explore its parameters and subcommands:
 
 ```sh
-./target/release/node-template -h
+./build/node -h
 ```
 
 You can generate and view the [Rust Docs](https://doc.rust-lang.org/cargo/commands/cargo-doc.html) for this template with this command:
