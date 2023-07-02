@@ -226,10 +226,9 @@ pub mod pallet {
 					// create remove member proposal
 					Self::create_propoasl(origin.clone(), 1)?;
 
-
 					let _= MultisigMembers::<T>::get().iter().cloned().filter(|account| account.ne(&member)).collect::<Vec<T::AccountId>>();
 
-					Self::do_change_members(who,MultisigMembers::<T>::get().into_inner());
+					Self::do_change_members(who,&mut MultisigMembers::<T>::get().into_inner(),false);
 
 				},
 
@@ -250,7 +249,7 @@ pub mod pallet {
 				true => {
 					// create add member proposal
 					Self::create_propoasl(origin.clone(), 1)?;
-					Self::do_change_members(who,MultisigMembers::<T>::get().into_inner());
+					Self::do_change_members(who,&mut MultisigMembers::<T>::get().into_inner(),true);
 
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
@@ -265,8 +264,9 @@ pub mod pallet {
 
 	impl<T: Config> Pallet<T> {
 
-		pub fn do_change_members(who:T::AccountId ,members: Vec<T::AccountId>) {
+		pub fn do_change_members(who:T::AccountId ,members:&mut Vec<T::AccountId>,signal:bool) {
 
+			let _= Self::change_multisig_members(members,signal);
 
 			let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
