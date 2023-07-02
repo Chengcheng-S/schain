@@ -5,7 +5,7 @@ use crate::{
 	service,
 };
 use frame_benchmarking_cli::{BenchmarkCmd, ExtrinsicFactory, SUBSTRATE_REFERENCE_HARDWARE};
-use node_template_runtime::{Block, EXISTENTIAL_DEPOSIT};
+use schain_runtime::{Block, EXISTENTIAL_DEPOSIT};
 use sc_cli::{ChainSpec, RuntimeVersion, SubstrateCli};
 use sc_service::PartialComponents;
 use sp_keyring::Sr25519Keyring;
@@ -15,7 +15,7 @@ use try_runtime_cli::block_building_info::timestamp_with_aura_info;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		"Substrate Node".into()
+		"Schain node".into()
 	}
 
 	fn impl_version() -> String {
@@ -48,7 +48,7 @@ impl SubstrateCli for Cli {
 	}
 
 	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&node_template_runtime::VERSION
+		&schain_runtime::VERSION
 	}
 }
 

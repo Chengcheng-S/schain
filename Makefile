@@ -58,7 +58,7 @@ fmt:
 build:
 	cargo build --release
 	mkdir -p ./build
-	cp ./target/release/node-template  ./build/node
+	cp ./target/release/schain  ./build/node
 
 # clean
 .PHONY: clean ## clean node
