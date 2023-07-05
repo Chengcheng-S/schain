@@ -6,12 +6,20 @@ use frame_support::{
 
 use sp_core::H256;
 use sp_runtime::{
-	testing::{Header, UintAuthorityId},
+	testing::Header,
 	traits::{BlakeTwo256, IdentityLookup},
 };
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
+
+impl pallet_smultisig::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
+	type MaxMultisigNumber = ConstU32<5>;
+	type MaxProposalNumber = ConstU32<10>;
+	type MinMultisigNumber = ConstU32<3>;
+}
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -21,7 +29,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		MultisigMoudle: pallet_smultisig,
+		MultisigModule: pallet_smultisig,
 	}
 );
 
@@ -50,14 +58,6 @@ impl frame_system::Config for Test {
 	type SS58Prefix = ConstU16<42>;
 	type OnSetCode = ();
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
-}
-
-impl pallet_smultisig::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = ();
-	type MaxMultisigNumber = ConstU32<5>;
-	type MaxProposalNumber = ConstU32<10>;
-	type MinMultisigNumber = ConstU32<3>;
 }
 
 // Build genesis storage according to the mock runtime.
