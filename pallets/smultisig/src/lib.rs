@@ -46,7 +46,7 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
-	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal>;
+	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal<T>>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -93,11 +93,12 @@ pub mod pallet {
 	}
 
 	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
-	pub struct Proposal {
+	pub struct Proposal<T:Config> {
 		pub proposal_id: u32,
 		pub threshold: ProposalThreshold,
 		pub status: ProposalStatus,
 		pub vote: u32,
+		pub owner: T::AccountId,
 	}
 
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
@@ -130,6 +131,7 @@ pub mod pallet {
 		NotFoundAccount,
 		MustContainCaller,
 		NotFoundProposal,
+		InvalidVote,
 	}
 
 	// when begin block or endblock  we need to deal with the proposal
@@ -192,7 +194,7 @@ pub mod pallet {
 						};
 						let status = ProposalStatus::Pending;
 
-						let proposal = Proposal { proposal_id, threshold, status, vote: 1 };
+						let proposal = Proposal::<T>{ proposal_id, threshold, status, vote: 1 , owner: who.clone() };
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
 
@@ -217,7 +219,6 @@ pub mod pallet {
 		#[pallet::weight(Weight::from_parts(3_000, 0))]
 		pub fn approve(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-
 
 			match MultisigMembers::<T>::get().contains(&who){
 				true => {
@@ -316,6 +317,8 @@ pub mod pallet {
 			// get proposal
 			let mut proposal =
 				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
+
+			ensure!(&caller.ne(&proposal.owner), Error::<T>::InvalidVote);
 
 			// check if proposal is pending and approved this proposal
 			if ProposalStatus::Pending == proposal.status && signal {
