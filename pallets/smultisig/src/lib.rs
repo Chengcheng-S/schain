@@ -68,6 +68,12 @@ pub mod pallet {
 			vote: u32,
 			who: T::AccountId,
 		},
+
+		FinshedProposal {
+			proposal_id: u32,
+			vote:u32,
+		},
+
 		RejectProposal {
 			proposal_id: u32,
 			vote: u32,
@@ -216,7 +222,7 @@ pub mod pallet {
 			match MultisigMembers::<T>::get().contains(&who){
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::exec_proposal(&who, proposal_id,true,dyn_threshold)?;
+					Self::exec_proposal(who.clone(), proposal_id,true,dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -227,13 +233,13 @@ pub mod pallet {
 
 		#[pallet::call_index(3)]
 		#[pallet::weight(Weight::from_parts(3_000, 0))]
-		pub fn reject(origin: OriginFor<T>, _proposal_id: u32) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
+		pub fn reject(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
 
 			match MultisigMembers::<T>::get().contains(&who){
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::exec_proposal(&who, proposal_id,false,dyn_threshold)?;
+					Self::exec_proposal(who.clone(), proposal_id,false,dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -326,7 +332,12 @@ pub mod pallet {
 						});
 					},
 					false => {
-						proposal.status == ProposalStatus::Finished
+
+						proposal.status = ProposalStatus::Finished;
+						Self::deposit_event(Event::FinshedProposal {
+							proposal_id,
+							vote: proposal.vote,
+						});
 					},
 				}
 			}
