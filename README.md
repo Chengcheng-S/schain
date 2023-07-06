@@ -25,6 +25,21 @@ rustup target add wasm32-unknown-unknown --toolchain nightly
 
 ```shell
 make help
+
+Usage:
+  make <tagert>
+
+Targets:
+  help                                               Display help commands
+  clippy                                             cargo clippy
+  clippyfix                                          cargo clippy --fix
+  cargofix                                           cargo fix
+  fmtcheck                                           cargo fmt check
+  taplocheck                                         taplo fmt check
+  fmt                                                cargo fmt all && taplo fmt all
+  build                                              build node
+  clean                                              clean node
+
 ```
 Use the following command to build the node without launching it:
 
