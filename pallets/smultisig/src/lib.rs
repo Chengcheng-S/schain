@@ -46,8 +46,7 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
-	pub type Proposals<T: Config> =
-		StorageMap<_, Twox64Concat, u32, Proposal>;
+	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -123,6 +122,8 @@ pub mod pallet {
 		MinMultisigNumber,
 		MaxMultisigNumber,
 		NotFoundAccount,
+		MustContainCaller,
+		NotFoundProposal,
 	}
 
 	// when begin block or endblock  we need to deal with the proposal
@@ -146,11 +147,15 @@ pub mod pallet {
 			match members.is_empty() {
 				true => return Err(Error::<T>::MinMultisigNumber.into()),
 				false => {
-					Self::change_multisig_members(&mut members)?;
-					let dyn_threshold = Self::calculate_dyn_threshold(&members);
+					if members.contains(&who) {
+						Self::change_multisig_members(&mut members)?;
+						let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
-					Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
+						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
 					// todo! Dynamically adjust signing thresholds
+					} else {
+						return Err(Error::<T>::MinMultisigNumber.into())
+					}
 				},
 			}
 
@@ -181,8 +186,7 @@ pub mod pallet {
 						};
 						let status = ProposalStatus::Pending;
 
-						let  proposal = Proposal { proposal_id, threshold, status, vote: 1 };
-
+						let proposal = Proposal { proposal_id, threshold, status, vote: 1 };
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
 
@@ -281,23 +285,19 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
-		// pub fn exec_proposal(proposal_id: u32, signal: bool) -> DispatchResult {
-		// 	// get proposal
-		// 	let proposal = Proposals::<T>::get(proposal_id);
-		//
-		// 	if proposal.is_none() {
-		// 		return Err(Error::<T>::NotFoundProposal.into());
-		// 	}
-		//
-		//
-		// 	// check if proposal is pending and approved this proposal
-		// 	if ProposalStatus::Pending == proposal.status && proposal.vote < proposal.threshold &&
-		// signal {
-		//
-		// 	}
-		//
-		// 	Ok(())
-		// }
+		pub fn exec_proposal(proposal_id: u32, signal: bool) -> DispatchResult {
+			// get proposal
+			let mut proposal =
+				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
+
+			// check if proposal is pending and approved this proposal
+			if ProposalStatus::Pending == proposal.status && signal {
+				// approve
+				proposal.vote += 1;
+			}
+
+			Ok(())
+		}
 
 		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>) {
 			let _ = Self::change_multisig_members(members);
