@@ -152,7 +152,7 @@ pub mod pallet {
 						let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
 						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
-					// todo! Dynamically adjust signing thresholds
+						// todo! Dynamically adjust signing thresholds
 					} else {
 						return Err(Error::<T>::MinMultisigNumber.into())
 					}
@@ -209,8 +209,17 @@ pub mod pallet {
 
 		#[pallet::call_index(2)]
 		#[pallet::weight(Weight::from_parts(3_000, 0))]
-		pub fn approve(origin: OriginFor<T>, _proposal_id: u32) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
+		pub fn approve(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+
+
+			match MultisigMembers::<T>::get().contains(&who){
+				true => {
+					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
+					Self::exec_proposal(&who, proposal_id,true,dyn_threshold)?;
+				},
+				false => return Err(Error::<T>::MustContainCaller.into()),
+			}
 
 			//todo! check if proposal exists
 			Ok(())
@@ -220,7 +229,15 @@ pub mod pallet {
 		#[pallet::weight(Weight::from_parts(3_000, 0))]
 		pub fn reject(origin: OriginFor<T>, _proposal_id: u32) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
-			//todo! check if proposal exists
+
+			match MultisigMembers::<T>::get().contains(&who){
+				true => {
+					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
+					Self::exec_proposal(&who, proposal_id,false,dyn_threshold)?;
+				},
+				false => return Err(Error::<T>::MustContainCaller.into()),
+			}
+
 			Ok(())
 		}
 
@@ -280,20 +297,38 @@ pub mod pallet {
 		pub fn get_pending_proposal(origin: OriginFor<T>) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
 
+			let _ = Proposals::<T>::iter()
+				.filter(|(_id, proposal)| proposal.status == ProposalStatus::Pending);
+
 			Ok(())
 		}
 	}
 
 	impl<T: Config> Pallet<T> {
-		pub fn exec_proposal(proposal_id: u32, signal: bool) -> DispatchResult {
+		pub fn exec_proposal(caller: T::AccountId, proposal_id: u32, signal: bool,dynthreshold:u32) -> DispatchResult {
+
 			// get proposal
 			let mut proposal =
 				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
 
 			// check if proposal is pending and approved this proposal
 			if ProposalStatus::Pending == proposal.status && signal {
-				// approve
-				proposal.vote += 1;
+
+				match proposal.vote < dynthreshold {
+					true => {
+						// approve
+						proposal.vote += 1;
+
+						Self::deposit_event(Event::ApprovalProposal {
+							proposal_id,
+							who: caller,
+							vote: proposal.vote,
+						});
+					},
+					false => {
+						proposal.status == ProposalStatus::Finished
+					},
+				}
 			}
 
 			Ok(())
