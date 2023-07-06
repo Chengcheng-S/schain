@@ -1,8 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// Edit this file to define custom logic or remove it if it is not needed.
-/// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://docs.substrate.io/reference/frame-pallets/>
+///multisig module
 pub use pallet::*;
 
 #[cfg(test)]
@@ -49,7 +47,7 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
 	pub type Proposals<T: Config> =
-		StorageMap<_, Twox64Concat, u32, BoundedVec<Proposal, T::MaxMultisigNumber>, ValueQuery>;
+		StorageMap<_, Twox64Concat, u32, Proposal>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -68,10 +66,12 @@ pub mod pallet {
 		},
 		ApprovalProposal {
 			proposal_id: u32,
+			vote: u32,
 			who: T::AccountId,
 		},
 		RejectProposal {
 			proposal_id: u32,
+			vote: u32,
 			who: T::AccountId,
 		},
 		// add / remove members
@@ -125,6 +125,7 @@ pub mod pallet {
 		NotFoundAccount,
 	}
 
+	// when begin block or endblock  we need to deal with the proposal
 	#[pallet::hooks]
 	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
 
@@ -180,9 +181,10 @@ pub mod pallet {
 						};
 						let status = ProposalStatus::Pending;
 
-						let mut proposal = Proposal { proposal_id, threshold, status, vote: 1 };
+						let  proposal = Proposal { proposal_id, threshold, status, vote: 1 };
 
-						Self::insert_proposal(&mut proposal)?;
+
+						Proposals::<T>::insert(&proposal_id, &proposal);
 
 						Self::approve(origin, proposal_id)?;
 
@@ -268,6 +270,14 @@ pub mod pallet {
 			//todo ! check if member exists
 			Ok(())
 		}
+
+		#[pallet::call_index(6)]
+		#[pallet::weight(Weight::from_parts(5_000, 0))]
+		pub fn get_pending_proposal(origin: OriginFor<T>) -> DispatchResult {
+			let _who = ensure_signed(origin)?;
+
+			Ok(())
+		}
 	}
 
 	impl<T: Config> Pallet<T> {
@@ -304,14 +314,6 @@ pub mod pallet {
 				Ok(())
 			})?;
 
-			Ok(())
-		}
-
-		fn insert_proposal(proposal: &mut Proposal) -> DispatchResult {
-			Proposals::<T>::try_mutate(proposal.proposal_id, |pro| -> DispatchResult {
-				pro.try_push(proposal.clone()).map_err(|_| Error::<T>::MaxProposalNumber)?;
-				Ok(())
-			})?;
 			Ok(())
 		}
 

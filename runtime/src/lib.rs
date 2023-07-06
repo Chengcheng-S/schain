@@ -273,6 +273,7 @@ impl pallet_sudo::Config for Runtime {
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = pallet_template::weights::SubstrateWeight<Runtime>;
+	type MaxProposal = ConstU32<5>;
 }
 
 impl pallet_smultisig::Config for Runtime {

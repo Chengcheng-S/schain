@@ -32,6 +32,8 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		/// Type representing the weight of this pallet
 		type WeightInfo: WeightInfo;
+
+		type MaxProposal: Get<u32>;
 	}
 
 	// The pallet's runtime storage items.
@@ -41,6 +43,35 @@ pub mod pallet {
 	// Learn more about declaring storage items:
 	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
 	pub type Something<T> = StorageValue<_, u32>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn proposals)]
+	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal>;
+
+	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
+	pub struct Proposal {
+		pub proposal_id: u32,
+		pub threshold: ProposalThreshold,
+		pub status: ProposalStatus,
+		pub vote: u32,
+	}
+
+	#[derive(PartialEq, Eq, Debug, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
+	pub enum ProposalStatus {
+		Pending,
+		Finished,
+	}
+
+	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
+	pub enum ProposalThreshold {
+		All,
+		// 100%
+		MoreThanhalf,
+		// 1/2 +
+		MoreThanTwoThirds,
+		//  2/3 +
+		MoreThanThreeQuarters, // 3/4 +
+	}
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -82,6 +113,32 @@ pub mod pallet {
 			// Emit an event.
 			Self::deposit_event(Event::SomethingStored { something, who });
 			// Return a successful DispatchResultWithPostInfo
+			Ok(())
+		}
+
+		#[pallet::call_index(2)]
+		#[pallet::weight(Weight::from_parts(3_000, 0))]
+		pub fn insert_proposal(
+			origin: OriginFor<T>,
+			proposal_id: u32,
+			threshold: u32,
+		) -> DispatchResult {
+			// Check that the extrinsic was signed and get the signer.
+			// This function will return an error if the extrinsic is not signed.
+			// https://docs.substrate.io/main-docs/build/origins/
+			let _who = ensure_signed(origin)?;
+
+			let threshold = match threshold {
+				1 => ProposalThreshold::All,
+				2 => ProposalThreshold::MoreThanhalf,
+				3 | _ => ProposalThreshold::MoreThanTwoThirds,
+			};
+
+			Proposals::<T>::insert(
+				proposal_id,
+				Proposal { proposal_id, threshold, status: ProposalStatus::Pending, vote: 0 },
+			);
+
 			Ok(())
 		}
 
