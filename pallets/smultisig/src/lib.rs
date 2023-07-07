@@ -329,11 +329,11 @@ pub mod pallet {
 			let mut proposal =
 				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
 
-			match &caller.eq(&proposal.owner){
+			match &caller.eq(&proposal.owner) {
 				true => {},
-				false =>{
+				false => {
 					// check if proposal is pending and approved this proposal
-					if ProposalStatus::Pending == proposal.status && signal{
+					if ProposalStatus::Pending == proposal.status && signal {
 						match proposal.vote < dynthreshold {
 							true => {
 								// approve
@@ -355,10 +355,9 @@ pub mod pallet {
 							},
 						}
 					}
-				}
-
+				},
 			}
-			
+
 			Ok(())
 		}
 
