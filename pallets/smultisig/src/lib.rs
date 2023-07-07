@@ -71,7 +71,7 @@ pub mod pallet {
 
 		FinshedProposal {
 			proposal_id: u32,
-			vote:u32,
+			vote: u32,
 		},
 
 		RejectProposal {
@@ -93,7 +93,8 @@ pub mod pallet {
 	}
 
 	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
-	pub struct Proposal<T:Config> {
+	#[scale_info(skip_type_params(T))]
+	pub struct Proposal<T: Config> {
 		pub proposal_id: u32,
 		pub threshold: ProposalThreshold,
 		pub status: ProposalStatus,
@@ -160,7 +161,7 @@ pub mod pallet {
 						let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
 						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
-						// todo! Dynamically adjust signing thresholds
+					// todo! Dynamically adjust signing thresholds
 					} else {
 						return Err(Error::<T>::MinMultisigNumber.into())
 					}
@@ -194,7 +195,13 @@ pub mod pallet {
 						};
 						let status = ProposalStatus::Pending;
 
-						let proposal = Proposal::<T>{ proposal_id, threshold, status, vote: 1 , owner: who.clone() };
+						let proposal = Proposal::<T> {
+							proposal_id,
+							threshold,
+							status,
+							vote: 1,
+							owner: who.clone(),
+						};
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
 
@@ -220,10 +227,10 @@ pub mod pallet {
 		pub fn approve(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			match MultisigMembers::<T>::get().contains(&who){
+			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::exec_proposal(who.clone(), proposal_id,true,dyn_threshold)?;
+					Self::exec_proposal(who.clone(), proposal_id, true, dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -237,10 +244,10 @@ pub mod pallet {
 		pub fn reject(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			match MultisigMembers::<T>::get().contains(&who){
+			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::exec_proposal(who.clone(), proposal_id,false,dyn_threshold)?;
+					Self::exec_proposal(who.clone(), proposal_id, false, dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -312,39 +319,46 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
-		pub fn exec_proposal(caller: T::AccountId, proposal_id: u32, signal: bool,dynthreshold:u32) -> DispatchResult {
-
+		pub fn exec_proposal(
+			caller: T::AccountId,
+			proposal_id: u32,
+			signal: bool,
+			dynthreshold: u32,
+		) -> DispatchResult {
 			// get proposal
 			let mut proposal =
 				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
 
-			ensure!(&caller.ne(&proposal.owner), Error::<T>::InvalidVote);
+			match &caller.eq(&proposal.owner){
+				true => {},
+				false =>{
+					// check if proposal is pending and approved this proposal
+					if ProposalStatus::Pending == proposal.status && signal{
+						match proposal.vote < dynthreshold {
+							true => {
+								// approve
 
-			// check if proposal is pending and approved this proposal
-			if ProposalStatus::Pending == proposal.status && signal {
+								proposal.vote += 1;
 
-				match proposal.vote < dynthreshold {
-					true => {
-						// approve
-						proposal.vote += 1;
-
-						Self::deposit_event(Event::ApprovalProposal {
-							proposal_id,
-							who: caller,
-							vote: proposal.vote,
-						});
-					},
-					false => {
-
-						proposal.status = ProposalStatus::Finished;
-						Self::deposit_event(Event::FinshedProposal {
-							proposal_id,
-							vote: proposal.vote,
-						});
-					},
+								Self::deposit_event(Event::ApprovalProposal {
+									proposal_id,
+									who: caller,
+									vote: proposal.vote,
+								});
+							},
+							false => {
+								proposal.status = ProposalStatus::Finished;
+								Self::deposit_event(Event::FinshedProposal {
+									proposal_id,
+									vote: proposal.vote,
+								});
+							},
+						}
+					}
 				}
-			}
 
+			}
+			
 			Ok(())
 		}
 
