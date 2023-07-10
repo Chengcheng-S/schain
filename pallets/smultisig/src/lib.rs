@@ -13,6 +13,8 @@ pub use weights::*;
 
 use frame_support::pallet_prelude::*;
 use frame_system::pallet_prelude::*;
+use sp_io::hashing::blake2_256;
+use sp_runtime::traits::TrailingZeroInput;
 use sp_std::prelude::*;
 
 #[frame_support::pallet]
@@ -21,6 +23,7 @@ pub mod pallet {
 	use core::marker::PhantomData;
 
 	#[pallet::pallet]
+	#[pallet::without_storage_info]
 	pub struct Pallet<T>(PhantomData<T>);
 
 	#[pallet::config]
@@ -47,6 +50,11 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
 	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal<T>>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn votings)]
+	pub type Voting<T: Config> =
+		StorageMap<_, Twox64Concat, u32, Votes<T::AccountId, T::BlockNumber>, OptionQuery>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -100,6 +108,21 @@ pub mod pallet {
 		pub status: ProposalStatus,
 		pub vote: u32,
 		pub owner: T::AccountId,
+	}
+
+	/// Info for keeping track of a motion being voted on.
+	#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
+	pub struct Votes<AccountId, BlockNumber> {
+		/// The proposal's unique index.
+		index: u32,
+		/// The number of approval votes that are needed to pass the motion.
+		threshold: u32,
+		/// The current set of voters that approved it.
+		ayes: Vec<AccountId>,
+		/// The current set of voters that rejected it.
+		nays: Vec<AccountId>,
+		/// The hard end time of this vote.
+		end: BlockNumber,
 	}
 
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
@@ -168,7 +191,8 @@ pub mod pallet {
 				},
 			}
 
-			// Return a successful DispatchResultWithPostInfo
+			//generate a multisig account address
+
 			Ok(())
 		}
 
@@ -319,6 +343,13 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
+		// generate multisig account
+		pub fn multi_account_id(who: &[T::AccountId], threshold: u16) -> T::AccountId {
+			let entropy = (b"modlpy/utilisuba", who, threshold).using_encoded(blake2_256);
+			Decode::decode(&mut TrailingZeroInput::new(entropy.as_ref()))
+				.expect("infinite length input; no invalid inputs for type; qed")
+		}
+
 		pub fn exec_proposal(
 			caller: T::AccountId,
 			proposal_id: u32,
@@ -327,7 +358,7 @@ pub mod pallet {
 		) -> DispatchResult {
 			// get proposal
 			let mut proposal =
-				Proposals::<T>::get(proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
+				Proposals::<T>::get(&proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
 
 			match &caller.eq(&proposal.owner) {
 				true => {},
@@ -339,6 +370,19 @@ pub mod pallet {
 								// approve
 
 								proposal.vote += 1;
+
+								let vote: Votes<_, _> = {
+									let end = frame_system::Pallet::<T>::block_number();
+									Votes {
+										index: proposal_id,
+										threshold: dynthreshold,
+										ayes: vec![&caller],
+										nays: vec![],
+										end,
+									}
+								};
+
+								Voting::<T>::insert(proposal_id, vote);
 
 								Self::deposit_event(Event::ApprovalProposal {
 									proposal_id,
@@ -354,6 +398,25 @@ pub mod pallet {
 								});
 							},
 						}
+					} else if ProposalStatus::Pending == proposal.status && !signal {
+						let vote: Votes<_, _> = {
+							let end = frame_system::Pallet::<T>::block_number();
+							Votes {
+								index: proposal_id,
+								threshold: dynthreshold,
+								ayes: vec![],
+								nays: vec![&caller],
+								end,
+							}
+						};
+
+						Voting::<T>::insert(proposal_id, vote);
+
+						Self::deposit_event(Event::RejectProposal {
+							proposal_id,
+							who: caller,
+							vote: proposal.vote,
+						});
 					}
 				},
 			}
