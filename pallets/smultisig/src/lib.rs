@@ -18,22 +18,7 @@ use sp_runtime::traits::TrailingZeroInput;
 use sp_std::prelude::*;
 
 pub type ProposalIndex = u32;
-pub type  Threshold =u32;
-
-/// Info for keeping track of a motion being voted on.
-#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
-pub struct Votes<AccountId, BlockNumber> {
-	/// The proposal's unique index.
-	index: ProposalIndex,
-	/// The number of approval votes that are needed to pass the motion.
-	threshold: Threshold,
-	/// The current set of voters that approved it.
-	ayes: Vec<AccountId>,
-	/// The current set of voters that rejected it.
-	nays: Vec<AccountId>,
-	/// The hard end time of this vote.
-	end: BlockNumber,
-}
+pub type Threshold = u32;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -42,11 +27,11 @@ pub mod pallet {
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
-	pub struct Pallet<T,I=()>(PhantomData<(T,I)>);
+	pub struct Pallet<T>(PhantomData<T>);
 
 	#[pallet::config]
-	pub trait Config<I:'static=()>: frame_system::Config {
-		type RuntimeEvent: From<Event<Self,I>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+	pub trait Config: frame_system::Config {
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		type WeightInfo: WeightInfo;
 
@@ -62,23 +47,22 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn members)]
-	pub type MultisigMembers<T: Config<I>, I: 'static = ()> =
+	pub type MultisigMembers<T: Config> =
 		StorageValue<_, BoundedVec<T::AccountId, T::MaxMultisigNumber>, ValueQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
-	pub type Proposals<T: Config<I>, I: 'static = ()> = StorageMap<_, Twox64Concat, u32, Proposal>;
+	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn votings)]
-	pub type Voting<T: Config<I>, I: 'static = ()> =
-		StorageMap<_, Identity, u32, Votes<T::AccountId, T::BlockNumber>, OptionQuery>;
+	pub type Voting<T: Config> = StorageMap<_, Identity, u32, Votes<T>, OptionQuery>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
 	#[pallet::generate_deposit(pub (super) fn deposit_event)]
-	pub enum Event<T: Config<I>, I: 'static = ()> {
+	pub enum Event<T: Config> {
 		CreateMultisig {
 			who: T::AccountId,
 			dyn_threshold: u32,
@@ -126,6 +110,22 @@ pub mod pallet {
 		pub vote: u32,
 	}
 
+	/// Info for keeping track of a motion being voted on.
+	#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
+	#[scale_info(skip_type_params(T))]
+	pub struct Votes<T: Config> {
+		/// The proposal's unique index.
+		index: ProposalIndex,
+		/// The number of approval votes that are needed to pass the motion.
+		threshold: Threshold,
+		/// The current set of voters that approved it.
+		ayes: Vec<T::AccountId>,
+		/// The current set of voters that rejected it.
+		nays: Vec<T::AccountId>,
+		/// The hard end time of this vote.
+		end: T::BlockNumber,
+	}
+
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
 	pub enum ProposalThreshold {
 		All,
@@ -148,7 +148,7 @@ pub mod pallet {
 
 	// Errors inform users that something went wrong.
 	#[pallet::error]
-	pub enum Error<T,I=()> {
+	pub enum Error<T> {
 		/// Error names should be descriptive.
 		MaxProposalNumber,
 		MinMultisigNumber,
@@ -161,10 +161,10 @@ pub mod pallet {
 
 	// when begin block or endblock  we need to deal with the proposal
 	#[pallet::hooks]
-	impl<T: Config<I>,I:'static> Hooks<BlockNumberFor<T>> for Pallet<T,I> {}
+	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
 
 	#[pallet::call]
-	impl<T: Config<I>,I:'static> Pallet<T,I> {
+	impl<T: Config> Pallet<T> {
 		/// create multisig group
 		#[pallet::call_index(0)]
 		#[pallet::weight(Weight::from_parts(1_000, 0))]
@@ -178,7 +178,7 @@ pub mod pallet {
 				members.iter().map(|account| account.clone()).collect::<Vec<T::AccountId>>();
 
 			match members.is_empty() {
-				true => return Err(Error::<T,I>::MinMultisigNumber.into()),
+				true => return Err(Error::<T>::MinMultisigNumber.into()),
 				false => {
 					if members.contains(&who) {
 						Self::change_multisig_members(&mut members)?;
@@ -187,7 +187,7 @@ pub mod pallet {
 						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
 					// todo! Dynamically adjust signing thresholds
 					} else {
-						return Err(Error::<T,I>::MinMultisigNumber.into())
+						return Err(Error::<T>::MinMultisigNumber.into())
 					}
 				},
 			}
@@ -204,15 +204,15 @@ pub mod pallet {
 			let who = ensure_signed(origin.clone())?;
 
 			// does account contain the multisig group?
-			match MultisigMembers::<T,I>::get().contains(&who) {
+			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
-					let multisig_members = MultisigMembers::<T,I>::get();
+					let multisig_members = MultisigMembers::<T>::get();
 					let multisig_members_len = multisig_members.len();
 
 					if multisig_members_len > 5 {
-						return Err(Error::<T,I>::MaxProposalNumber.into())
+						return Err(Error::<T>::MaxProposalNumber.into())
 					} else {
-						let proposal_id = Proposals::<T,I>::iter().count() as u32 + 1;
+						let proposal_id = Proposals::<T>::iter().count() as u32 + 1;
 						let threshold = match threshold {
 							1 => ProposalThreshold::All,
 							2 => ProposalThreshold::MoreThanhalf,
@@ -220,14 +220,9 @@ pub mod pallet {
 						};
 						let status = ProposalStatus::Pending;
 
-						let proposal = Proposal {
-							proposal_id,
-							threshold,
-							status,
-							vote: 1,
-						};
+						let proposal = Proposal { proposal_id, threshold, status, vote: 1 };
 
-						Proposals::<T,I>::insert(&proposal_id, &proposal);
+						Proposals::<T>::insert(&proposal_id, &proposal);
 
 						Self::approve(origin, proposal_id)?;
 
@@ -239,7 +234,7 @@ pub mod pallet {
 						});
 					}
 				},
-				false => return Err(Error::<T,I>::NotFoundAccount.into()),
+				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
 
 			// Return a successful DispatchResultWithPostInfo
@@ -251,12 +246,12 @@ pub mod pallet {
 		pub fn approve(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			match MultisigMembers::<T,I>::get().contains(&who) {
+			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
-					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T,I>::get());
+					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
 					Self::exec_proposal(who.clone(), proposal_id, true, dyn_threshold)?;
 				},
-				false => return Err(Error::<T,I>::MustContainCaller.into()),
+				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
 
 			//todo! check if proposal exists
@@ -268,12 +263,12 @@ pub mod pallet {
 		pub fn reject(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			match MultisigMembers::<T,I>::get().contains(&who) {
+			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
-					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T,I>::get());
+					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
 					Self::exec_proposal(who.clone(), proposal_id, false, dyn_threshold)?;
 				},
-				false => return Err(Error::<T,I>::MustContainCaller.into()),
+				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
 
 			Ok(())
@@ -286,14 +281,14 @@ pub mod pallet {
 			let who = ensure_signed(origin.clone())?;
 
 			// check the sender  in multisig group
-			match MultisigMembers::<T,I>::get().contains(&who) &&
-				MultisigMembers::<T,I>::get().contains(&member)
+			match MultisigMembers::<T>::get().contains(&who) &&
+				MultisigMembers::<T>::get().contains(&member)
 			{
 				true => {
 					// create remove member proposal
 					Self::create_proposal(origin.clone(), 1)?;
 
-					let mut newgroup = MultisigMembers::<T,I>::get()
+					let mut newgroup = MultisigMembers::<T>::get()
 						.iter()
 						.cloned()
 						.filter(|account| account.ne(&member))
@@ -302,7 +297,7 @@ pub mod pallet {
 					Self::do_change_members(who, &mut newgroup);
 				},
 
-				false => return Err(Error::<T,I>::NotFoundAccount.into()),
+				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
 
 			//todo ! check if member exists
@@ -315,15 +310,15 @@ pub mod pallet {
 			let who = ensure_signed(origin.clone())?;
 
 			// check the sender  in multisig group
-			match MultisigMembers::<T,I>::get().contains(&who) &&
-				!MultisigMembers::<T,I>::get().contains(&member)
+			match MultisigMembers::<T>::get().contains(&who) &&
+				!MultisigMembers::<T>::get().contains(&member)
 			{
 				true => {
 					// create add member proposal
 					Self::create_proposal(origin.clone(), 1)?;
-					Self::do_change_members(who, &mut MultisigMembers::<T,I>::get().into_inner());
+					Self::do_change_members(who, &mut MultisigMembers::<T>::get().into_inner());
 				},
-				false => return Err(Error::<T,I>::NotFoundAccount.into()),
+				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
 
 			//todo ! check if member exists
@@ -335,14 +330,14 @@ pub mod pallet {
 		pub fn get_pending_proposal(origin: OriginFor<T>) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
 
-			let _ = Proposals::<T,I>::iter()
+			let _ = Proposals::<T>::iter()
 				.filter(|(_id, proposal)| proposal.status == ProposalStatus::Pending);
 
 			Ok(())
 		}
 	}
 
-	impl<T: Config<I>,I:'static> Pallet<T,I> {
+	impl<T: Config> Pallet<T> {
 		// generate multisig account
 		pub fn multi_account_id(who: &[T::AccountId], threshold: u16) -> T::AccountId {
 			let entropy = (b"modlpy/utilisuba", who, threshold).using_encoded(blake2_256);
@@ -358,9 +353,9 @@ pub mod pallet {
 		) -> DispatchResult {
 			// get proposal
 			let mut proposal =
-				Proposals::<T,I>::get(&proposal_id).map_or(Err(Error::<T,I>::NotFoundProposal), Ok)?;
+				Proposals::<T>::get(&proposal_id).map_or(Err(Error::<T>::NotFoundProposal), Ok)?;
 
-			let vote =Voting::<T,I>::get(&proposal_id).unwrap();
+			let vote = Voting::<T>::get(&proposal_id).unwrap();
 
 			match !vote.ayes.contains(&caller) {
 				true => {},
@@ -372,18 +367,18 @@ pub mod pallet {
 								// approve
 								proposal.vote += 1;
 
-								let vote: Votes<_, _> = {
+								let vote: Votes<_> = {
 									let end = frame_system::Pallet::<T>::block_number();
 									Votes {
 										index: proposal_id,
 										threshold: dynthreshold,
-										ayes: vec![&caller],
+										ayes: vec![caller.clone()],
 										nays: vec![],
 										end,
 									}
 								};
 
-								Voting::<T,I>::insert(proposal_id, vote);
+								Voting::<T>::insert(proposal_id, vote);
 
 								Self::deposit_event(Event::ApprovalProposal {
 									proposal_id,
@@ -400,18 +395,18 @@ pub mod pallet {
 							},
 						}
 					} else if ProposalStatus::Pending == proposal.status && !signal {
-						let vote: Votes<_, _> = {
+						let vote: Votes<_> = {
 							let end = frame_system::Pallet::<T>::block_number();
 							Votes {
 								index: proposal_id,
 								threshold: dynthreshold,
 								ayes: vec![],
-								nays: vec![&caller],
+								nays: vec![caller.clone()],
 								end,
 							}
 						};
 
-						<Voting<T,I>>::insert(proposal_id, vote);
+						<Voting<T>>::insert(proposal_id, vote);
 						Self::deposit_event(Event::RejectProposal {
 							proposal_id,
 							who: caller,
@@ -433,8 +428,8 @@ pub mod pallet {
 		}
 
 		fn change_multisig_members(members: &mut Vec<T::AccountId>) -> DispatchResult {
-			MultisigMembers::<T,I>::try_mutate(|accounts| -> DispatchResult {
-				accounts.try_append(members).map_err(|_| Error::<T,I>::MaxMultisigNumber)?;
+			MultisigMembers::<T>::try_mutate(|accounts| -> DispatchResult {
+				accounts.try_append(members).map_err(|_| Error::<T>::MaxMultisigNumber)?;
 				accounts.sort();
 				Ok(())
 			})?;

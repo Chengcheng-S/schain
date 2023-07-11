@@ -36,8 +36,8 @@ As for MultisigMembers struct uses BoundedVec, I may replace it later, after all
 Record it
 ```shell
 #[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
-	#[scale_info(skip_type_params(T))]   //This line is essential
-	pub struct Proposal<T: Config> {
+#[scale_info(skip_type_params(T))]   //This line is essential
+pub struct Proposal<T: Config> {
 		pub proposal_id: u32,
 		pub threshold: ProposalThreshold,
 		pub status: ProposalStatus,
