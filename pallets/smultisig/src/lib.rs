@@ -122,8 +122,8 @@ pub mod pallet {
 		ayes: Vec<T::AccountId>,
 		/// The current set of voters that rejected it.
 		nays: Vec<T::AccountId>,
-		/// The hard end time of this vote.
-		end: T::BlockNumber,
+		// /// The hard end time of this vote.
+		// end: T::BlockNumber,
 	}
 
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
@@ -213,6 +213,17 @@ pub mod pallet {
 						return Err(Error::<T>::MaxProposalNumber.into())
 					} else {
 						let proposal_id = Proposals::<T>::iter().count() as u32 + 1;
+
+						let vote: Votes<T> = Votes {
+							index: proposal_id,
+							threshold,
+							ayes: vec![who.clone()],
+							nays: Vec::new(),
+
+						};
+
+						Voting::<T>::insert(&proposal_id, &vote);
+
 						let threshold = match threshold {
 							1 => ProposalThreshold::All,
 							2 => ProposalThreshold::MoreThanhalf,
@@ -249,7 +260,7 @@ pub mod pallet {
 			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::do_vote(who.clone(), proposal_id, true, dyn_threshold);
+					Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -266,7 +277,7 @@ pub mod pallet {
 			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::do_vote(who.clone(), proposal_id, false, dyn_threshold);
+					Self::do_vote(who.clone(), proposal_id, false, dyn_threshold)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -317,7 +328,8 @@ pub mod pallet {
 					// create add member proposal
 					Self::create_proposal(origin.clone(), 1)?;
 
-					if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false, 1) {
+					if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false, 1)?
+					{
 						Self::do_change_members(who, &mut MultisigMembers::<T>::get().into_inner());
 					}
 				},
@@ -353,16 +365,21 @@ pub mod pallet {
 			proposal_id: u32,
 			signal: bool,
 			dynthreshold: u32,
-		) -> bool {
+		) -> Result<bool, DispatchError> {
 			// should be execute the proposal
 			let mut result: bool = false;
 
-			// get proposal
-			let mut proposal = Proposals::<T>::get(&proposal_id)
-				.map_or(Err(Error::<T>::NotFoundProposal), |proposal| Ok(proposal.clone()))
-				.unwrap();
+			// // get proposal
+			// let mut proposal =
+			// 	Self::proposals(&proposal_id).ok_or(Err(Error::<T>::NotFoundProposal))?;
+			//
+			// let mut vote = Self::votings(&proposal_id).ok_or(Err(Error::<T>::NotFoundProposal))?;
 
-			let mut vote = Voting::<T>::get(&proposal_id).unwrap();
+			let (mut proposal, mut vote) =
+				match (Self::proposals(&proposal_id), Self::votings(&proposal_id)) {
+					(Some(proposal), Some(vote)) => (proposal, vote),
+					_ => return Err(Error::<T>::NotFoundProposal.into()),
+				};
 
 			// check if proposal is pending
 			match !vote.ayes.contains(&caller) && !vote.nays.contains(&caller) {
@@ -413,7 +430,7 @@ pub mod pallet {
 				},
 			}
 
-			result
+			Ok(result)
 		}
 
 		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>) {
