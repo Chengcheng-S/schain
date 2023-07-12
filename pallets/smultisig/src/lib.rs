@@ -58,6 +58,16 @@ pub mod pallet {
 	#[pallet::getter(fn votings)]
 	pub type Voting<T: Config> = StorageMap<_, Identity, u32, Votes<T>, OptionQuery>;
 
+	// add member
+	#[pallet::storage]
+	#[pallet::getter(fn add_members)]
+	pub type AddMember<T: Config> = StorageMap<_, Twox64Concat, u32, T::AccountId>;
+
+	// remove member
+	#[pallet::storage]
+	#[pallet::getter(fn remove_members)]
+	pub type RemoveMember<T: Config> = StorageMap<_, Twox64Concat, u32, T::AccountId>;
+
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
@@ -285,9 +295,9 @@ pub mod pallet {
 					// vote for proposal and execute the proposal if vote had enough approval
 
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)?;
-
-					Self::exe_proposal(proposal_id)?;
+					if Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)? {
+						Self::exe_proposal(proposal_id)?;
+					}
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -325,15 +335,15 @@ pub mod pallet {
 			{
 				true => {
 					// just create remove member proposal
-					Self::create_proposal(origin.clone(), 1, 1)?;
+					Self::create_a_proposal(who, 1, 1, false, member)?;
 
-					let mut newgroup = MultisigMembers::<T>::get()
-						.iter()
-						.cloned()
-						.filter(|account| account.ne(&member))
-						.collect::<Vec<T::AccountId>>();
-
-					Self::do_change_members(who, &mut newgroup);
+					// let mut newgroup = MultisigMembers::<T>::get()
+					// 	.iter()
+					// 	.cloned()
+					// 	.filter(|account| account.ne(&member))
+					// 	.collect::<Vec<T::AccountId>>();
+					//
+					// Self::do_change_members(who, &mut newgroup);
 				},
 
 				false => return Err(Error::<T>::NotFoundAccount.into()),
@@ -354,7 +364,7 @@ pub mod pallet {
 			{
 				true => {
 					// just create add member proposal
-					Self::create_proposal(origin.clone(), 1, 2)?;
+					Self::create_a_proposal(who, 1, 2, true, member)?;
 
 					// if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false,
 					// 1)? {
@@ -468,10 +478,103 @@ pub mod pallet {
 
 			let proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 			match proposal.proposaltype {
-				ProposalType::AddMember => {},
-				ProposalType::RemoveMember => {},
+				ProposalType::AddMember => {
+					let members =
+						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+
+					Self::change_multisig_members(members);
+				},
+				ProposalType::RemoveMember => {
+					let members =
+						Self::remove_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+
+					let mut newgroup = MultisigMembers::<T>::get()
+						.iter()
+						.cloned()
+						.filter(|account| account.ne(&member))
+						.collect::<Vec<T::AccountId>>();
+
+					Self::change_multisig_members(members);
+				},
 			}
 
+			Ok(())
+		}
+
+		// create a proposal by user doing
+		pub fn create_a_proposal(
+			caller: T::AccountId,
+			threshold: u32,
+			proposaltype: u32,
+			signal: bool,
+			change_member: T::AccountId,
+		) -> DispatchResult {
+			// does account contain the multisig group?
+			match MultisigMembers::<T>::get().contains(&caller) {
+				true => {
+					let multisig_members = MultisigMembers::<T>::get();
+					let multisig_members_len = multisig_members.len();
+
+					if multisig_members_len > 5 {
+						return Err(Error::<T>::MaxProposalNumber.into())
+					} else {
+						let proposal_id = Proposals::<T>::iter().count() as u32 + 1;
+
+						let vote: Votes<T> = Votes {
+							index: proposal_id,
+							threshold,
+							ayes: vec![caller.clone()],
+							nays: Vec::new(),
+						};
+
+						Voting::<T>::insert(&proposal_id, &vote);
+
+						let threshold = match threshold {
+							1 => ProposalThreshold::All,
+							2 => ProposalThreshold::MoreThanhalf,
+							3 | _ => ProposalThreshold::MoreThanTwoThirds,
+						};
+
+						let protype = match proposaltype {
+							1 => ProposalType::AddMember,
+							2 | _ => ProposalType::RemoveMember,
+						};
+
+						let status = ProposalStatus::Pending;
+
+						let proposal = Proposal {
+							proposal_id,
+							threshold,
+							status,
+							vote: 1,
+							proposaltype: protype,
+						};
+
+						match signal {
+							true => {
+								AddMember::<T>::insert(&proposal_id, &change_member);
+							},
+							false => {
+								RemoveMember::<T>::insert(&proposal_id, &change_member);
+							},
+						}
+
+						Proposals::<T>::insert(&proposal_id, &proposal);
+
+						// Self::approve(caller.clone(), proposal_id)?;
+
+						Self::deposit_event(Event::CreateProposal {
+							who: caller,
+							proposal_id,
+							threshold,
+							status,
+						})
+					}
+				},
+				false => return Err(Error::<T>::NotFoundAccount.into()),
+			}
+
+			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
 
