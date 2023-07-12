@@ -219,7 +219,6 @@ pub mod pallet {
 							threshold,
 							ayes: vec![who.clone()],
 							nays: Vec::new(),
-
 						};
 
 						Voting::<T>::insert(&proposal_id, &vote);
