@@ -483,7 +483,7 @@ pub mod pallet {
 						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
 					let mut members = vec![member];
-					Self::change_multisig_members(&mut members);
+					Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
 					let member =
@@ -495,7 +495,7 @@ pub mod pallet {
 						.filter(|account| account.ne(&member))
 						.collect::<Vec<T::AccountId>>();
 
-					Self::change_multisig_members(&mut newgroup);
+					Self::change_multisig_members(&mut newgroup)?;
 				},
 			}
 
