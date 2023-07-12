@@ -108,6 +108,14 @@ pub mod pallet {
 		pub threshold: ProposalThreshold,
 		pub status: ProposalStatus,
 		pub vote: u32,
+		pub proposaltype: ProposalType,
+	}
+
+	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
+	pub enum ProposalType {
+		AddMember,
+		RemoveMember,
+		//etc
 	}
 
 	/// Info for keeping track of a motion being voted on.
@@ -200,7 +208,11 @@ pub mod pallet {
 		/// create proposal
 		#[pallet::call_index(1)]
 		#[pallet::weight(Weight::from_parts(3_000, 0))]
-		pub fn create_proposal(origin: OriginFor<T>, threshold: u32) -> DispatchResult {
+		pub fn create_proposal(
+			origin: OriginFor<T>,
+			threshold: u32,
+			proposaltype: u32,
+		) -> DispatchResult {
 			let who = ensure_signed(origin.clone())?;
 
 			// does account contain the multisig group?
@@ -228,9 +240,21 @@ pub mod pallet {
 							2 => ProposalThreshold::MoreThanhalf,
 							3 | _ => ProposalThreshold::MoreThanTwoThirds,
 						};
+
+						let protype = match proposaltype {
+							1 => ProposalType::AddMember,
+							2 | _ => ProposalType::RemoveMember,
+						};
+
 						let status = ProposalStatus::Pending;
 
-						let proposal = Proposal { proposal_id, threshold, status, vote: 1 };
+						let proposal = Proposal {
+							proposal_id,
+							threshold,
+							status,
+							vote: 1,
+							proposaltype: protype,
+						};
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
 
@@ -258,8 +282,12 @@ pub mod pallet {
 
 			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
+					// vote for proposal and execute the proposal if vote had enough approval
+
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
 					Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)?;
+
+					Self::exe_proposal(proposal_id)?;
 				},
 				false => return Err(Error::<T>::MustContainCaller.into()),
 			}
@@ -275,6 +303,7 @@ pub mod pallet {
 
 			match MultisigMembers::<T>::get().contains(&who) {
 				true => {
+					//only reject the proposal
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
 					Self::do_vote(who.clone(), proposal_id, false, dyn_threshold)?;
 				},
@@ -295,8 +324,8 @@ pub mod pallet {
 				MultisigMembers::<T>::get().contains(&member)
 			{
 				true => {
-					// create remove member proposal
-					Self::create_proposal(origin.clone(), 1)?;
+					// just create remove member proposal
+					Self::create_proposal(origin.clone(), 1, 1)?;
 
 					let mut newgroup = MultisigMembers::<T>::get()
 						.iter()
@@ -324,13 +353,13 @@ pub mod pallet {
 				!MultisigMembers::<T>::get().contains(&member)
 			{
 				true => {
-					// create add member proposal
-					Self::create_proposal(origin.clone(), 1)?;
+					// just create add member proposal
+					Self::create_proposal(origin.clone(), 1, 2)?;
 
-					if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false, 1)?
-					{
-						Self::do_change_members(who, &mut MultisigMembers::<T>::get().into_inner());
-					}
+					// if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false,
+					// 1)? {
+					// 	Self::do_change_members(who, &mut MultisigMembers::<T>::get().into_inner());
+					// }
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
@@ -430,6 +459,20 @@ pub mod pallet {
 			}
 
 			Ok(result)
+		}
+
+		// execute proopsal
+		pub fn exe_proposal(proposal_id: u32) -> DispatchResult {
+			//get proposal status  && proposal vote yes_number > dynthreshold than approve the
+			// proposal such as add member | remove member | transfer etc
+
+			let proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+			match proposal.proposaltype {
+				ProposalType::AddMember => {},
+				ProposalType::RemoveMember => {},
+			}
+
+			Ok(())
 		}
 
 		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>) {
