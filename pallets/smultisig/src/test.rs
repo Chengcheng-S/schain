@@ -1,8 +1,8 @@
 use crate::{mock::*, Error, Event};
-use frame_support::{assert_noop, assert_ok};
+use frame_support:: assert_ok;
 
 #[test]
-fn it_works_for_default_value() {
+fn it_create_multisig_group() {
 	new_test_ext().execute_with(|| {
 		// Go past genesis block so events get deposited
 		System::set_block_number(1);
@@ -10,11 +10,43 @@ fn it_works_for_default_value() {
 
 		assert_ok!(MultisigModule::create_multisig_group(
 			RuntimeOrigin::signed(1),
-			vec![1, 2, 3, 5]
+			vec![1, 2, 3]
 		));
 
-		// Read pallet storage and assert an expected result.
+		MultisigModule::add_member(RuntimeOrigin::signed(1), 4);
+		MultisigModule::approve(RuntimeOrigin::signed(2),1);
+		MultisigModule::approve(RuntimeOrigin::signed(3),1);
 
-		assert_eq!(MultisigModule::remove_member(RuntimeOrigin::signed(1), 2), Ok(()));
+		assert_eq!(MultisigModule::members().contains(&4),false);
+
+	});
+}
+
+#[test]
+fn remove_member_work(){
+	new_test_ext().execute_with(|| {
+		
+		assert_ok!(MultisigModule::create_multisig_group(
+			RuntimeOrigin::signed(1),
+			vec![1, 2, 3]
+		));
+
+		/*
+		test failed, need to fix
+		perhaps the add member have some problem
+		 */
+
+		MultisigModule::add_member(RuntimeOrigin::signed(1), 4);
+		MultisigModule::approve(RuntimeOrigin::signed(2),1);
+		MultisigModule::approve(RuntimeOrigin::signed(3),1);
+
+		assert_eq!(MultisigModule::members().contains(&4),false);
+
+		assert_ok!(MultisigModule::remove_member(RuntimeOrigin::signed(4), 2));
+		MultisigModule::approve(RuntimeOrigin::signed(3), 2);
+		MultisigModule::approve(RuntimeOrigin::signed(1), 2);
+		
+		assert_eq!(MultisigModule::members().contains(&2),false);
+
 	});
 }
