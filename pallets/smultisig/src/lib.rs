@@ -476,9 +476,10 @@ pub mod pallet {
 			//get proposal status  && proposal vote yes_number > dynthreshold than approve the
 			// proposal such as add member | remove member | transfer etc
 
-			let proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+			let mut proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 			match proposal.proposaltype {
 				ProposalType::AddMember => {
+					proposal.status = ProposalStatus::Finished;
 					let member =
 						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
@@ -486,6 +487,8 @@ pub mod pallet {
 					Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
+					proposal.status = ProposalStatus::Finished;
+
 					let member =
 						Self::remove_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
@@ -505,7 +508,7 @@ pub mod pallet {
 		// create a proposal by user doing
 		pub fn create_a_proposal(
 			caller: T::AccountId,
-			threshold: u32,
+			threshold_u32: u32,
 			proposaltype: u32,
 			signal: bool,
 			change_member: T::AccountId,
@@ -523,14 +526,14 @@ pub mod pallet {
 
 						let vote: Votes<T> = Votes {
 							index: proposal_id,
-							threshold,
+							threshold: threshold_u32,
 							ayes: vec![caller.clone()],
 							nays: Vec::new(),
 						};
 
 						Voting::<T>::insert(&proposal_id, &vote);
 
-						let threshold = match threshold {
+						let threshold = match threshold_u32 {
 							1 => ProposalThreshold::All,
 							2 => ProposalThreshold::MoreThanhalf,
 							3 | _ => ProposalThreshold::MoreThanTwoThirds,
@@ -547,7 +550,7 @@ pub mod pallet {
 							proposal_id,
 							threshold,
 							status,
-							vote: 1,
+							vote: 0,
 							proposaltype: protype,
 						};
 
@@ -562,7 +565,7 @@ pub mod pallet {
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
 
-						// Self::approve(caller.clone(), proposal_id)?;
+						Self::do_vote(caller.clone(), proposal_id, signal, threshold_u32)?;
 
 						Self::deposit_event(Event::CreateProposal {
 							who: caller,
@@ -597,12 +600,13 @@ pub mod pallet {
 			Ok(())
 		}
 
+		// multisig group dyn threshold
 		fn calculate_dyn_threshold(members: &Vec<T::AccountId>) -> u32 {
-			match members.len() {
-				0..=2 => 1,
-				3..=5 => 2,
-				_ => 3,
-				// todo! some details doesn't deal with
+			let member_numbers = members.len() as u32;
+			match member_numbers {
+				0..=3 => member_numbers,           // must all
+				4..=6 => 2 * (member_numbers % 3), // must 2/3 +
+				_ => member_numbers % 2 + 1,       // must 1/2 +
 			}
 		}
 	}

@@ -34,7 +34,7 @@ pub struct Pallet<T>(PhantomData<T>);
 As for MultisigMembers struct uses BoundedVec, I may replace it later, after all, it is too resource-intensive to perform one operation.
 
 Record it
-```shell
+```rust
 #[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]   //This line is essential
 pub struct Proposal<T: Config> {
