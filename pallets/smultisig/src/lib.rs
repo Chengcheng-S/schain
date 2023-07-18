@@ -52,7 +52,7 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn proposals)]
-	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal>;
+	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal<T>>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn votings)]
@@ -113,12 +113,14 @@ pub mod pallet {
 	}
 
 	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
-	pub struct Proposal {
+	#[scale_info(skip_type_params(T))]
+	pub struct Proposal<T: Config> {
 		pub proposal_id: u32,
 		pub threshold: ProposalThreshold,
 		pub status: ProposalStatus,
 		pub vote: u32,
 		pub proposaltype: ProposalType,
+		pub owner: T::AccountId,
 	}
 
 	#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
@@ -264,6 +266,7 @@ pub mod pallet {
 							status,
 							vote: 1,
 							proposaltype: protype,
+							owner: who.clone(),
 						};
 
 						Proposals::<T>::insert(&proposal_id, &proposal);
@@ -484,7 +487,9 @@ pub mod pallet {
 						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
 					let mut members = vec![member];
-					Self::change_multisig_members(&mut members)?;
+
+					Self::do_change_members(proposal.owner, &mut members);
+					// Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
 					proposal.status = ProposalStatus::Finished;
@@ -498,7 +503,7 @@ pub mod pallet {
 						.filter(|account| account.ne(&member))
 						.collect::<Vec<T::AccountId>>();
 
-					Self::change_multisig_members(&mut newgroup)?;
+					Self::do_change_members(proposal.owner, &mut newgroup);
 				},
 			}
 
@@ -552,6 +557,7 @@ pub mod pallet {
 							status,
 							vote: 0,
 							proposaltype: protype,
+							owner: caller.clone(),
 						};
 
 						match signal {
