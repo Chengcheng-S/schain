@@ -201,7 +201,7 @@ pub mod pallet {
 				true => return Err(Error::<T>::MinMultisigNumber.into()),
 				false => {
 					if members.contains(&who) {
-						Self::change_multisig_members(&mut members)?;
+						Self::change_multisig_members(&mut members, true)?;
 						let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
 						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
@@ -488,7 +488,7 @@ pub mod pallet {
 
 					let mut members = vec![member];
 
-					Self::do_change_members(proposal.owner, &mut members);
+					Self::do_change_members(proposal.owner, &mut members, true);
 					// Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
@@ -503,7 +503,7 @@ pub mod pallet {
 						.filter(|account| account.ne(&member))
 						.collect::<Vec<T::AccountId>>();
 
-					Self::do_change_members(proposal.owner, &mut newgroup);
+					Self::do_change_members(proposal.owner, &mut newgroup, false);
 				},
 			}
 
@@ -588,20 +588,37 @@ pub mod pallet {
 			Ok(())
 		}
 
-		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>) {
-			let _ = Self::change_multisig_members(members);
+		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>, signal: bool) {
+			let _ = Self::change_multisig_members(members, signal);
 
 			let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
 			Self::deposit_event(Event::ChangeGroup { account: who, dynthreshold: dyn_threshold });
 		}
 
-		fn change_multisig_members(members: &mut Vec<T::AccountId>) -> DispatchResult {
-			MultisigMembers::<T>::try_mutate(|accounts| -> DispatchResult {
-				accounts.try_append(members).map_err(|_| Error::<T>::MaxMultisigNumber)?;
-				accounts.sort();
-				Ok(())
-			})?;
+		fn change_multisig_members(
+			members: &mut Vec<T::AccountId>,
+			singal: bool,
+		) -> DispatchResult {
+			match singal {
+				true => {
+					MultisigMembers::<T>::try_mutate(|accounts| -> DispatchResult {
+						accounts.try_append(members).map_err(|_| Error::<T>::MaxMultisigNumber)?;
+						accounts.sort();
+						Ok(())
+					})?;
+				},
+				false => {
+					MultisigMembers::<T>::try_mutate(|accounts| -> DispatchResult {
+						if let Some(index) = accounts.iter().position(|x| x == &members[0]) {
+							accounts.remove(index);
+							Ok(())
+						} else {
+							Err(Error::<T>::NotFoundAccount.into())
+						}
+					})?;
+				},
+			}
 
 			Ok(())
 		}
