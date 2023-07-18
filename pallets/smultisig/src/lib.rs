@@ -148,13 +148,14 @@ pub mod pallet {
 
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
 	pub enum ProposalThreshold {
-		All,
 		// 100%
-		MoreThanhalf,
+		All,
 		// 1/2 +
+		MoreThanhalf,
+		//  2/3+
 		MoreThanTwoThirds,
-		//  2/3 +
-		MoreThanThreeQuarters, // 3/4 +
+		// 3/4 +
+		MoreThanThreeQuarters,
 	}
 
 	#[derive(Clone, PartialEq, Eq, Debug, Copy, Encode, Decode, TypeInfo, MaxEncodedLen)]
@@ -339,14 +340,6 @@ pub mod pallet {
 				true => {
 					// just create remove member proposal
 					Self::create_a_proposal(who, 1, 1, false, member)?;
-
-					// let mut newgroup = MultisigMembers::<T>::get()
-					// 	.iter()
-					// 	.cloned()
-					// 	.filter(|account| account.ne(&member))
-					// 	.collect::<Vec<T::AccountId>>();
-					//
-					// Self::do_change_members(who, &mut newgroup);
 				},
 
 				false => return Err(Error::<T>::NotFoundAccount.into()),
@@ -368,11 +361,6 @@ pub mod pallet {
 				true => {
 					// just create add member proposal
 					Self::create_a_proposal(who, 1, 2, true, member)?;
-
-					// if Self::do_vote(who.clone(), Proposals::<T>::iter().count() as u32, false,
-					// 1)? {
-					// 	Self::do_change_members(who, &mut MultisigMembers::<T>::get().into_inner());
-					// }
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
@@ -410,17 +398,20 @@ pub mod pallet {
 			// should be execute the proposal
 			let mut result: bool = false;
 
-			// // get proposal
-			// let mut proposal =
-			// 	Self::proposals(&proposal_id).ok_or(Err(Error::<T>::NotFoundProposal))?;
-			//
-			// let mut vote = Self::votings(&proposal_id).ok_or(Err(Error::<T>::NotFoundProposal))?;
-
 			let (mut proposal, mut vote) =
 				match (Self::proposals(&proposal_id), Self::votings(&proposal_id)) {
 					(Some(proposal), Some(vote)) => (proposal, vote),
 					_ => return Err(Error::<T>::NotFoundProposal.into()),
 				};
+
+			let members = Self::members().len() as u32;
+
+			let proposal_threshold = match proposal.threshold {
+				ProposalThreshold::All => members,
+				ProposalThreshold::MoreThanTwoThirds => 2 * (members % 3) + 1,
+				ProposalThreshold::MoreThanhalf => (members % 2) + 1,
+				ProposalThreshold::MoreThanThreeQuarters => 3 * (members % 4) + 1,
+			};
 
 			// check if proposal is pending
 			match !vote.ayes.contains(&caller) && !vote.nays.contains(&caller) {
@@ -428,14 +419,16 @@ pub mod pallet {
 				false => {
 					// check if proposal is pending and approved this proposal
 					if ProposalStatus::Pending == proposal.status && signal {
-						match proposal.vote < dynthreshold {
+						match proposal.vote <= dynthreshold ||
+							vote.ayes.len() as u32 <= proposal_threshold
+						{
 							true => {
 								// approve
 								proposal.vote += 1;
 
 								vote.ayes.push(caller.clone());
 
-								if vote.ayes.len() as u32 > dynthreshold {
+								if vote.ayes.len() as u32 >= dynthreshold {
 									result = true;
 								}
 
