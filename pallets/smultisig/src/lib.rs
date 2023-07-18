@@ -360,7 +360,7 @@ pub mod pallet {
 			{
 				true => {
 					// just create add member proposal
-					Self::create_a_proposal(who, 1, 2, true, member)?;
+					Self::create_a_proposal(who, 3, 2, true, member)?;
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
@@ -404,24 +404,30 @@ pub mod pallet {
 					_ => return Err(Error::<T>::NotFoundProposal.into()),
 				};
 
-			let members = Self::members().len() as u32;
+			let threshold = {
+				let members = Self::members().len() as u32;
 
-			let proposal_threshold = match proposal.threshold {
-				ProposalThreshold::All => members,
-				ProposalThreshold::MoreThanTwoThirds => 2 * (members % 3) + 1,
-				ProposalThreshold::MoreThanhalf => (members % 2) + 1,
-				ProposalThreshold::MoreThanThreeQuarters => 3 * (members % 4) + 1,
+				let proposal_threshold = match proposal.threshold {
+					ProposalThreshold::All => members,
+					ProposalThreshold::MoreThanTwoThirds => 2 * (members % 3) + 1,
+					ProposalThreshold::MoreThanhalf => (members % 2) + 1,
+					ProposalThreshold::MoreThanThreeQuarters => 3 * (members % 4) + 1,
+				};
+
+				if proposal_threshold > dynthreshold {
+					proposal_threshold
+				} else {
+					dynthreshold
+				}
 			};
 
 			// check if proposal is pending
 			match !vote.ayes.contains(&caller) && !vote.nays.contains(&caller) {
-				true => {},
-				false => {
+				false => {},
+				true => {
 					// check if proposal is pending and approved this proposal
 					if ProposalStatus::Pending == proposal.status && signal {
-						match proposal.vote <= dynthreshold ||
-							vote.ayes.len() as u32 <= proposal_threshold
-						{
+						match proposal.vote <= threshold {
 							true => {
 								// approve
 								proposal.vote += 1;

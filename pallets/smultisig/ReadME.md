@@ -45,3 +45,17 @@ pub struct Proposal<T: Config> {
 		pub owner: T::AccountId,
 	}
 ```
+
+
+Run test but got  panicked at 'events not registered at the genesis block'
+
+mock.rs
+
+```rust
+pub fn new_test_ext() -> sp_io::TestExternalities {
+	let t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+    let mut ext = sp_io::TestExternalities::new(t);
+    ext.execute_with(|| System::set_block_number(1));
+    ext
+}
+```

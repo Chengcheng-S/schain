@@ -1,4 +1,7 @@
 use crate as pallet_smultisig;
+
+use frame_system::{self as system};
+
 use frame_support::{
 	pallet_prelude::ConstU32,
 	traits::{ConstU16, ConstU64},
@@ -29,7 +32,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		MultisigModule: pallet_smultisig,
+		MultisigModule: pallet_smultisig::{Pallet,Call,Storage,Event<T>},
 	}
 );
 
@@ -62,5 +65,22 @@ impl frame_system::Config for Test {
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
+	let t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+    let mut ext = sp_io::TestExternalities::new(t);
+    ext.execute_with(|| System::set_block_number(1));
+    ext
+}
+
+// Checks events against the latest. A contiguous set of events must be provided. They must
+// include the most recent event, but do not have to include every past event.
+pub fn assert_events(mut expected: Vec<RuntimeEvent>) {
+	let mut actual: Vec<RuntimeEvent> =
+		system::Pallet::<Test>::events().iter().map(|e| e.event.clone()).collect();
+
+	expected.reverse();
+
+	for evt in expected {
+		let next = actual.pop().expect("event expected");
+		assert_eq!(next, evt, "Events don't match");
+	}
 }
