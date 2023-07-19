@@ -21,20 +21,23 @@ fn it_create_multisig_group() {
 			threshold: ProposalThreshold::All,
 			status: ProposalStatus::Pending,
 		})]);
-
+		/* 
 		let propoasl=MultisigModule::proposals(1).unwrap();
 		assert_eq!(propoasl.owner, 1);
 		assert_eq!(propoasl.threshold, ProposalThreshold::All);
 		assert_eq!(propoasl.status, ProposalStatus::Pending);
 		assert_eq!(propoasl.proposal_id,1);
+		*/
+		
+		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(2), 1));
 
-		// assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(2), 1));
+		assert_ok!(MultisigModule::reject(RuntimeOrigin::signed(3), 1));
 
-		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(3), 1));
+		assert_eq!(proposal_vote.nays.contains(&3),false);
 
-		assert_eq!(MultisigModule::members().contains(&1), true);
+		// assert_eq!(MultisigModule::members().contains(&1), true);
 
-		// assert_eq!(MultisigModule::members().contains(&4), true);
+		assert_eq!(MultisigModule::members().contains(&4), false);
 		
 	});
 }

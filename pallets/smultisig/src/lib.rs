@@ -135,13 +135,13 @@ pub mod pallet {
 	#[scale_info(skip_type_params(T))]
 	pub struct Votes<T: Config> {
 		/// The proposal's unique index.
-		index: ProposalIndex,
+		pub index: ProposalIndex,
 		/// The number of approval votes that are needed to pass the motion.
-		threshold: Threshold,
+		pub threshold: Threshold,
 		/// The current set of voters that approved it.
-		ayes: Vec<T::AccountId>,
+		pub ayes: Vec<T::AccountId>,
 		/// The current set of voters that rejected it.
-		nays: Vec<T::AccountId>,
+		pub nays: Vec<T::AccountId>,
 		// /// The hard end time of this vote.
 		// end: T::BlockNumber,
 	}
@@ -393,7 +393,7 @@ pub mod pallet {
 		pub fn do_vote(
 			caller: T::AccountId,
 			proposal_id: u32,
-			signal: bool,
+			approve: bool,
 			dynthreshold: u32,
 		) -> Result<bool, DispatchError> {
 			// should be execute the proposal
@@ -440,8 +440,8 @@ pub mod pallet {
 				false => {},
 				true => {
 					// check if proposal is pending and approved this proposal
-					if proposal.status == ProposalStatus::Pending && signal {
-						match proposal.vote <= threshold {
+					if proposal.status == ProposalStatus::Pending && approve {
+						match proposal.vote < threshold {
 							true => {
 								// approve
 								proposal.vote += 1;
@@ -468,8 +468,8 @@ pub mod pallet {
 								});
 							},
 						}
-					} else if proposal.status == ProposalStatus::Pending && !signal {
-						proposal.status = ProposalStatus::Finished;
+					} else if proposal.status == ProposalStatus::Pending && !approve {
+						// proposal.status = ProposalStatus::Finished;
 
 						vote.nays.push(caller.clone());
 
