@@ -300,7 +300,7 @@ pub mod pallet {
 					let should_execute =
 						Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)?;
 
-					if !should_execute {
+					if should_execute {
 						Self::exe_proposal(proposal_id)?;
 					}
 				},
@@ -399,11 +399,24 @@ pub mod pallet {
 			// should be execute the proposal
 			let mut result: bool = false;
 
-			let (mut proposal, mut vote) =
-				match (Self::proposals(&proposal_id), Self::votings(&proposal_id)) {
-					(Some(proposal), Some(vote)) => (proposal, vote),
-					_ => return Err(Error::<T>::NotFoundProposal.into()),
-				};
+			// // Perhaps the vote that was caused here failed
+			// let (mut proposal, mut vote) =
+			// 	match (Self::proposals(&proposal_id), Self::votings(&proposal_id)) {
+			// 		(Some(proposal), Some(vote)) => (proposal, vote),
+			// 		_ => return Err(Error::<T>::NotFoundProposal.into()),
+			// 	};
+
+			let mut vote = match Self::votings(&proposal_id) {
+				Some(vote) => vote,
+				// None => Votes { index: proposal.proposal_id, threshold: dynthreshold , ayes:
+				// vec![], nays: vec![] },
+				None => return Err(Error::<T>::InvalidVote.into()),
+			};
+
+			let mut proposal = match Self::proposals(&proposal_id) {
+				Some(proposal) => proposal,
+				None => return Err(Error::<T>::NotFoundProposal.into()),
+			};
 
 			let threshold = {
 				let members = Self::members().len() as u32;
@@ -411,7 +424,7 @@ pub mod pallet {
 				let proposal_threshold = match proposal.threshold {
 					ProposalThreshold::All => members,
 					ProposalThreshold::MoreThanTwoThirds => 2 * (members % 3) + 1,
-					ProposalThreshold::MoreThanhalf => (members % 2) + 1,
+					ProposalThreshold::MoreThanhalf => (members / 2) + 1,
 					ProposalThreshold::MoreThanThreeQuarters => 3 * (members % 4) + 1,
 				};
 
@@ -540,9 +553,9 @@ pub mod pallet {
 						Voting::<T>::insert(&proposal_id, &vote);
 
 						let threshold = match threshold_u32 {
-							1 => ProposalThreshold::All,
-							2 => ProposalThreshold::MoreThanhalf,
-							3 | _ => ProposalThreshold::MoreThanTwoThirds,
+							1..=3 => ProposalThreshold::All,
+							6 => ProposalThreshold::MoreThanhalf,
+							5 | _ => ProposalThreshold::MoreThanTwoThirds,
 						};
 
 						let protype = match proposaltype {

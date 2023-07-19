@@ -59,3 +59,31 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     ext
 }
 ```
+
+error log
+when I run this code  got some error, could not found propolsal, maybe is source code level problem
+```shell
+running 1 test
+thread 'test::it_create_multisig_group' panicked at 'Expected Ok(_). Got Err(
+    Module(
+        ModuleError {
+            index: 1,
+            error: [
+                5,
+                0,
+                0,
+                0,
+            ],
+            message: Some(
+                "NotFoundProposal",
+            ),
+        },
+    ),
+)', pallets/smultisig/src/test.rs:18:9
+``` 
+
+slovition
+
+The problem is basically positioning, can't find the proposal, can't it be IO multiple times?
+
+
