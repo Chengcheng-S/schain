@@ -28,8 +28,12 @@ fn it_create_multisig_group() {
 		assert_eq!(propoasl.status, ProposalStatus::Pending);
 		assert_eq!(propoasl.proposal_id,1);
 		*/
-		
+
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(2), 1));
+
+		let proposal_vote =MultisigModule::votings(1).unwrap();
+		assert_eq!(proposal_vote.ayes.contains(&1),true);
+		assert_eq!(proposal_vote.ayes.contains(&2),true);
 
 		assert_ok!(MultisigModule::reject(RuntimeOrigin::signed(3), 1));
 
