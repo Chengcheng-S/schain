@@ -195,22 +195,19 @@ pub mod pallet {
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			let mut members =
-				members.iter().map(|account| account.clone()).collect::<Vec<T::AccountId>>();
+			let mut add_members = members.to_vec();
 
-			match members.is_empty() {
-				true => return Err(Error::<T>::MinMultisigNumber.into()),
-				false => {
+			match add_members.len() > 0 && add_members.len() == members.len() {
+				false => return Err(Error::<T>::MinMultisigNumber.into()),
+				true =>
 					if members.contains(&who) {
-						Self::change_multisig_members(&mut members, true)?;
+						Self::change_multisig_members(&mut add_members, true)?;
 						let dyn_threshold = Self::calculate_dyn_threshold(&members);
 
 						Self::deposit_event(Event::CreateMultisig { who, dyn_threshold });
-					// todo! Dynamically adjust signing thresholds
 					} else {
 						return Err(Error::<T>::MinMultisigNumber.into())
-					}
-				},
+					},
 			}
 
 			//generate a multisig account address
@@ -299,7 +296,11 @@ pub mod pallet {
 					// vote for proposal and execute the proposal if vote had enough approval
 
 					let dyn_threshold = Self::calculate_dyn_threshold(&MultisigMembers::<T>::get());
-					if Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)? {
+
+					let should_execute =
+						Self::do_vote(who.clone(), proposal_id, true, dyn_threshold)?;
+
+					if !should_execute {
 						Self::exe_proposal(proposal_id)?;
 					}
 				},
@@ -426,7 +427,7 @@ pub mod pallet {
 				false => {},
 				true => {
 					// check if proposal is pending and approved this proposal
-					if ProposalStatus::Pending == proposal.status && signal {
+					if proposal.status == ProposalStatus::Pending && signal {
 						match proposal.vote <= threshold {
 							true => {
 								// approve
@@ -454,7 +455,7 @@ pub mod pallet {
 								});
 							},
 						}
-					} else if ProposalStatus::Pending == proposal.status && !signal {
+					} else if proposal.status == ProposalStatus::Pending && !signal {
 						proposal.status = ProposalStatus::Finished;
 
 						vote.nays.push(caller.clone());
@@ -479,9 +480,11 @@ pub mod pallet {
 			// proposal such as add member | remove member | transfer etc
 
 			let mut proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+
+			proposal.status = ProposalStatus::Finished;
+
 			match proposal.proposaltype {
 				ProposalType::AddMember => {
-					proposal.status = ProposalStatus::Finished;
 					let member =
 						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
@@ -491,25 +494,24 @@ pub mod pallet {
 					// Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
-					proposal.status = ProposalStatus::Finished;
-
 					let member =
 						Self::remove_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
-					let mut newgroup = MultisigMembers::<T>::get()
-						.iter()
-						.cloned()
-						.filter(|account| account.ne(&member))
-						.collect::<Vec<T::AccountId>>();
+					// let mut newgroup = MultisigMembers::<T>::get()
+					// 	.iter()
+					// 	.cloned()
+					// 	.filter(|account| account.ne(&member))
+					// .collect::<Vec<T::AccountId>>();
+					let mut members = vec![member];
 
-					Self::do_change_members(proposal.owner, &mut newgroup, false);
+					Self::do_change_members(proposal.owner, &mut members, false);
 				},
 			}
 
 			Ok(())
 		}
 
-		// create a proposal by user doing
+		// create a proposal by user behavior
 		pub fn create_a_proposal(
 			caller: T::AccountId,
 			threshold_u32: u32,
@@ -583,7 +585,6 @@ pub mod pallet {
 				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
 
-			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
 
@@ -627,8 +628,8 @@ pub mod pallet {
 			let member_numbers = members.len() as u32;
 			match member_numbers {
 				0..=3 => member_numbers,           // must all
-				4..=6 => 2 * (member_numbers % 3), // must 2/3 +
-				_ => member_numbers % 2 + 1,       // must 1/2 +
+				4..=5 => 2 * (member_numbers % 3), // must 2/3 +
+				_ => member_numbers / 2 + 1,       // must 1/2 +
 			}
 		}
 	}
