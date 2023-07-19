@@ -177,6 +177,8 @@ pub mod pallet {
 		NotFoundAccount,
 		MustContainCaller,
 		NotFoundProposal,
+		NotFoundAddAccount,
+		NotFoundRemoveAccount,
 		InvalidVote,
 	}
 
@@ -340,7 +342,7 @@ pub mod pallet {
 			{
 				true => {
 					// just create remove member proposal
-					Self::create_a_proposal(who, 1, 1, false, member)?;
+					Self::create_a_proposal(who, 1, 2, false, member)?;
 				},
 
 				false => return Err(Error::<T>::NotFoundAccount.into()),
@@ -361,7 +363,7 @@ pub mod pallet {
 			{
 				true => {
 					// just create add member proposal
-					Self::create_a_proposal(who, 3, 2, true, member)?;
+					Self::create_a_proposal(who, 3, 1, true, member)?;
 				},
 				false => return Err(Error::<T>::NotFoundAccount.into()),
 			}
@@ -399,17 +401,8 @@ pub mod pallet {
 			// should be execute the proposal
 			let mut result: bool = false;
 
-			// // Perhaps the vote that was caused here failed
-			// let (mut proposal, mut vote) =
-			// 	match (Self::proposals(&proposal_id), Self::votings(&proposal_id)) {
-			// 		(Some(proposal), Some(vote)) => (proposal, vote),
-			// 		_ => return Err(Error::<T>::NotFoundProposal.into()),
-			// 	};
-
 			let mut vote = match Self::votings(&proposal_id) {
 				Some(vote) => vote,
-				// None => Votes { index: proposal.proposal_id, threshold: dynthreshold , ayes:
-				// vec![], nays: vec![] },
 				None => return Err(Error::<T>::InvalidVote.into()),
 			};
 
@@ -498,8 +491,10 @@ pub mod pallet {
 
 			match proposal.proposaltype {
 				ProposalType::AddMember => {
-					let member =
-						Self::add_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+					let member = match Self::add_members(&proposal_id) {
+						Some(member) => member,
+						None => return Err(Error::<T>::NotFoundAddAccount.into()),
+					};
 
 					let mut members = vec![member];
 
@@ -507,14 +502,11 @@ pub mod pallet {
 					// Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
-					let member =
-						Self::remove_members(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+					let member = match Self::remove_members(&proposal_id) {
+						Some(member) => member,
+						None => return Err(Error::<T>::NotFoundRemoveAccount.into()),
+					};
 
-					// let mut newgroup = MultisigMembers::<T>::get()
-					// 	.iter()
-					// 	.cloned()
-					// 	.filter(|account| account.ne(&member))
-					// .collect::<Vec<T::AccountId>>();
 					let mut members = vec![member];
 
 					Self::do_change_members(proposal.owner, &mut members, false);
