@@ -650,9 +650,9 @@ pub mod pallet {
 		fn calculate_dyn_threshold(members: &Vec<T::AccountId>) -> u32 {
 			let member_numbers = members.len() as u32;
 			match member_numbers {
-				0..=3 => member_numbers,           // must all
+				0..=3 => member_numbers,       // must all
 				5 => 2 * (member_numbers % 3), // must 2/3 +
-				_ => member_numbers / 2 + 1,       // must 1/2 +
+				_ => member_numbers / 2 + 1,   // must 1/2 +
 			}
 		}
 	}

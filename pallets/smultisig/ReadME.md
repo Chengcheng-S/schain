@@ -86,3 +86,6 @@ slovition
 
 The problem is basically positioning, can't find the proposal, can't it be IO multiple times?
 My mistake, the parameter was passed incorrectly
+
+Next 
+RPC or search on chain 
