@@ -23,14 +23,14 @@ fn it_create_multisig_group() {
 		assert!(proposal_vote.ayes.contains(&1));
 		assert!(proposal_vote.ayes.contains(&2));
 
-		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(3), 1));
+		assert_ok!(MultisigModule::reject(RuntimeOrigin::signed(3), 1));
 
 		let members = MultisigModule::add_members(1).unwrap();
 		assert_eq!(members, 4);
 
 		assert!(!proposal_vote.nays.contains(&3));
 
-		assert!(MultisigModule::members().contains(&4));
+		assert!(!MultisigModule::members().contains(&4));
 	});
 }
 

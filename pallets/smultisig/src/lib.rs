@@ -55,6 +55,10 @@ pub mod pallet {
 	pub type Proposals<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal<T>>;
 
 	#[pallet::storage]
+	#[pallet::getter(fn finished_proposal)]
+	pub type FinishedProposal<T: Config> = StorageMap<_, Twox64Concat, u32, Proposal<T>>;
+
+	#[pallet::storage]
 	#[pallet::getter(fn votings)]
 	pub type Voting<T: Config> = StorageMap<_, Identity, u32, Votes<T>, OptionQuery>;
 
@@ -68,8 +72,6 @@ pub mod pallet {
 	#[pallet::getter(fn remove_members)]
 	pub type RemoveMember<T: Config> = StorageMap<_, Twox64Concat, u32, T::AccountId>;
 
-	// Pallets use events to inform users when important changes are made.
-	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
 	#[pallet::generate_deposit(pub (super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -459,14 +461,30 @@ pub mod pallet {
 									proposal_id,
 									vote: proposal.vote,
 								});
+								Proposals::<T>::remove(proposal_id);
+								FinishedProposal::<T>::insert(proposal_id, proposal);
 							},
 						}
 					} else if proposal.status == ProposalStatus::Pending && !approve {
-						// proposal.status = ProposalStatus::Finished;
-
 						vote.nays.push(caller.clone());
+						let rejects = vote.nays.len() as u32;
 
 						<Voting<T>>::insert(proposal_id, vote);
+
+						let members = Self::members().len() as u32;
+
+						match members - dynthreshold <= rejects {
+							true => {
+								proposal.status = ProposalStatus::Finished;
+								Self::deposit_event(Event::FinshedProposal {
+									proposal_id,
+									vote: proposal.vote,
+								});
+								Proposals::<T>::remove(proposal_id);
+								FinishedProposal::<T>::insert(proposal_id, &proposal);
+							},
+							false => {},
+						}
 
 						Self::deposit_event(Event::RejectProposal {
 							proposal_id,
