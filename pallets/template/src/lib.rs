@@ -131,7 +131,7 @@ pub mod pallet {
 			let threshold = match threshold {
 				1 => ProposalThreshold::All,
 				2 => ProposalThreshold::MoreThanhalf,
-				3 | _ => ProposalThreshold::MoreThanTwoThirds,
+				_ => ProposalThreshold::MoreThanTwoThirds,
 			};
 
 			Proposals::<T>::insert(
@@ -151,7 +151,7 @@ pub mod pallet {
 			// Read a value from storage.
 			match <Something<T>>::get() {
 				// Return an error if the value has not been set.
-				None => return Err(Error::<T>::NoneValue.into()),
+				None =>  Err(Error::<T>::NoneValue.into()),
 				Some(old) => {
 					// Increment the value read from storage; will error in the event of overflow.
 					let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;

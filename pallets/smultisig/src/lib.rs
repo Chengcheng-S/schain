@@ -199,7 +199,7 @@ pub mod pallet {
 
 			let mut add_members = members.to_vec();
 
-			match add_members.len() > 0 && add_members.len() == members.len() {
+			match !add_members.is_empty() && add_members.len() == members.len() {
 				false => return Err(Error::<T>::MinMultisigNumber.into()),
 				true =>
 					if members.contains(&who) {
@@ -245,17 +245,17 @@ pub mod pallet {
 							nays: Vec::new(),
 						};
 
-						Voting::<T>::insert(&proposal_id, &vote);
+						Voting::<T>::insert(proposal_id, &vote);
 
 						let threshold = match threshold {
 							1 => ProposalThreshold::All,
 							2 => ProposalThreshold::MoreThanhalf,
-							3 | _ => ProposalThreshold::MoreThanTwoThirds,
+							_ => ProposalThreshold::MoreThanTwoThirds,
 						};
 
 						let protype = match proposaltype {
 							1 => ProposalType::AddMember,
-							2 | _ => ProposalType::RemoveMember,
+							_ => ProposalType::RemoveMember,
 						};
 
 						let status = ProposalStatus::Pending;
@@ -269,7 +269,7 @@ pub mod pallet {
 							owner: who.clone(),
 						};
 
-						Proposals::<T>::insert(&proposal_id, &proposal);
+						Proposals::<T>::insert(proposal_id, &proposal);
 
 						Self::approve(origin, proposal_id)?;
 
@@ -401,12 +401,12 @@ pub mod pallet {
 			// should be execute the proposal
 			let mut result: bool = false;
 
-			let mut vote = match Self::votings(&proposal_id) {
+			let mut vote = match Self::votings(proposal_id) {
 				Some(vote) => vote,
 				None => return Err(Error::<T>::InvalidVote.into()),
 			};
 
-			let mut proposal = match Self::proposals(&proposal_id) {
+			let mut proposal = match Self::proposals(proposal_id) {
 				Some(proposal) => proposal,
 				None => return Err(Error::<T>::NotFoundProposal.into()),
 			};
@@ -485,13 +485,13 @@ pub mod pallet {
 			//get proposal status  && proposal vote yes_number > dynthreshold than approve the
 			// proposal such as add member | remove member | transfer etc
 
-			let mut proposal = Self::proposals(&proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
+			let mut proposal = Self::proposals(proposal_id).ok_or(Error::<T>::NotFoundProposal)?;
 
 			proposal.status = ProposalStatus::Finished;
 
 			match proposal.proposaltype {
 				ProposalType::AddMember => {
-					let member = match Self::add_members(&proposal_id) {
+					let member = match Self::add_members(proposal_id) {
 						Some(member) => member,
 						None => return Err(Error::<T>::NotFoundAddAccount.into()),
 					};
@@ -502,7 +502,7 @@ pub mod pallet {
 					// Self::change_multisig_members(&mut members)?;
 				},
 				ProposalType::RemoveMember => {
-					let member = match Self::remove_members(&proposal_id) {
+					let member = match Self::remove_members(proposal_id) {
 						Some(member) => member,
 						None => return Err(Error::<T>::NotFoundRemoveAccount.into()),
 					};
@@ -542,17 +542,17 @@ pub mod pallet {
 							nays: Vec::new(),
 						};
 
-						Voting::<T>::insert(&proposal_id, &vote);
+						Voting::<T>::insert(proposal_id, &vote);
 
 						let threshold = match threshold_u32 {
 							1..=3 => ProposalThreshold::All,
 							6 => ProposalThreshold::MoreThanhalf,
-							5 | _ => ProposalThreshold::MoreThanTwoThirds,
+							_ => ProposalThreshold::MoreThanTwoThirds,
 						};
 
 						let protype = match proposaltype {
 							1 => ProposalType::AddMember,
-							2 | _ => ProposalType::RemoveMember,
+							_ => ProposalType::RemoveMember,
 						};
 
 						let status = ProposalStatus::Pending;
@@ -568,14 +568,14 @@ pub mod pallet {
 
 						match signal {
 							true => {
-								AddMember::<T>::insert(&proposal_id, &change_member);
+								AddMember::<T>::insert(proposal_id, &change_member);
 							},
 							false => {
-								RemoveMember::<T>::insert(&proposal_id, &change_member);
+								RemoveMember::<T>::insert(proposal_id, &change_member);
 							},
 						}
 
-						Proposals::<T>::insert(&proposal_id, &proposal);
+						Proposals::<T>::insert(proposal_id, &proposal);
 
 						Self::do_vote(caller.clone(), proposal_id, signal, threshold_u32)?;
 
@@ -596,7 +596,7 @@ pub mod pallet {
 		pub fn do_change_members(who: T::AccountId, members: &mut Vec<T::AccountId>, signal: bool) {
 			let _ = Self::change_multisig_members(members, signal);
 
-			let dyn_threshold = Self::calculate_dyn_threshold(&members);
+			let dyn_threshold = Self::calculate_dyn_threshold(members);
 
 			Self::deposit_event(Event::ChangeGroup { account: who, dynthreshold: dyn_threshold });
 		}

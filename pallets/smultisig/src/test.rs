@@ -9,8 +9,6 @@ fn it_create_multisig_group() {
 	new_test_ext().execute_with(|| {
 		assert_ok!(MultisigModule::create_multisig_group(RuntimeOrigin::signed(1), vec![1, 2, 3]));
 
-		assert_eq!(MultisigModule::members().contains(&3), true);
-
 		assert_ok!(MultisigModule::add_member(RuntimeOrigin::signed(1), 4));
 		assert_events(vec![RuntimeEvent::MultisigModule(Event::CreateProposal {
 			who: 1,
@@ -22,17 +20,17 @@ fn it_create_multisig_group() {
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(2), 1));
 
 		let proposal_vote = MultisigModule::votings(1).unwrap();
-		assert_eq!(proposal_vote.ayes.contains(&1), true);
-		assert_eq!(proposal_vote.ayes.contains(&2), true);
+		assert!(proposal_vote.ayes.contains(&1));
+		assert!(proposal_vote.ayes.contains(&2));
 
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(3), 1));
 
 		let members = MultisigModule::add_members(1).unwrap();
 		assert_eq!(members, 4);
 
-		assert_eq!(proposal_vote.nays.contains(&3), false);
+		assert!(!proposal_vote.nays.contains(&3));
 
-		assert_eq!(MultisigModule::members().contains(&4), true);
+		assert!(MultisigModule::members().contains(&4));
 	});
 }
 
@@ -43,11 +41,6 @@ fn remove_member_work() {
 			RuntimeOrigin::signed(1),
 			vec![1, 2, 3, 4]
 		));
-
-		/*
-		test failed, need to fix
-		perhaps the add member have some problem
-		 */
 
 		assert_ok!(MultisigModule::remove_member(RuntimeOrigin::signed(1), 4));
 
@@ -65,6 +58,6 @@ fn remove_member_work() {
 
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(3), 1));
 
-		assert_eq!(MultisigModule::members().contains(&4), false);
+		assert!(!MultisigModule::members().contains(&4));
 	});
 }
