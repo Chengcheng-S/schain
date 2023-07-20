@@ -651,7 +651,7 @@ pub mod pallet {
 			let member_numbers = members.len() as u32;
 			match member_numbers {
 				0..=3 => member_numbers,           // must all
-				4..=5 => 2 * (member_numbers % 3), // must 2/3 +
+				5 => 2 * (member_numbers % 3), // must 2/3 +
 				_ => member_numbers / 2 + 1,       // must 1/2 +
 			}
 		}

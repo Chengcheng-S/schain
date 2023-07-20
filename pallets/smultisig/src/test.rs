@@ -41,6 +41,7 @@ fn remove_member_work() {
 			RuntimeOrigin::signed(1),
 			vec![1, 2, 3, 4]
 		));
+		assert_events(vec![RuntimeEvent::MultisigModule(Event::CreateMultisig { who: 1, dyn_threshold: 3})]);
 
 		assert_ok!(MultisigModule::remove_member(RuntimeOrigin::signed(1), 4));
 
