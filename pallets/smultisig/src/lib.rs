@@ -433,9 +433,7 @@ pub mod pallet {
 
 			// check if proposal is pending
 			match !vote.ayes.contains(&caller) && !vote.nays.contains(&caller) {
-				false => {
-					return Err(Error::<T>::RepeatVoting.into())
-				},
+				false => return Err(Error::<T>::RepeatVoting.into()),
 				true => {
 					// check if proposal is pending and approved this proposal
 					if proposal.status == ProposalStatus::Pending && approve {

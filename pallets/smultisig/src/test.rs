@@ -2,7 +2,7 @@ use crate::{
 	mock::{RuntimeEvent, *},
 	Event, ProposalStatus, ProposalThreshold,
 };
-use frame_support::{assert_ok};
+use frame_support::assert_ok;
 #[test]
 fn it_create_multisig_group() {
 	new_test_ext().execute_with(|| {
@@ -24,7 +24,6 @@ fn it_create_multisig_group() {
 		assert!(proposal_vote.ayes.contains(&2));
 
 		assert_ok!(MultisigModule::reject(RuntimeOrigin::signed(3), 1));
-		
 
 		let members = MultisigModule::add_members(1).unwrap();
 		assert_eq!(members, 4);
@@ -62,7 +61,7 @@ fn remove_member_work() {
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(3), 1));
 
 		assert_ok!(MultisigModule::approve(RuntimeOrigin::signed(4), 1));
-		
+
 		assert!(!MultisigModule::members().contains(&4));
 	});
 }
