@@ -182,6 +182,7 @@ pub mod pallet {
 		NotFoundAddAccount,
 		NotFoundRemoveAccount,
 		InvalidVote,
+		RepeatVoting,
 	}
 
 	// when begin block or endblock  we need to deal with the proposal
@@ -432,7 +433,9 @@ pub mod pallet {
 
 			// check if proposal is pending
 			match !vote.ayes.contains(&caller) && !vote.nays.contains(&caller) {
-				false => {},
+				false => {
+					return Err(Error::<T>::RepeatVoting.into())
+				},
 				true => {
 					// check if proposal is pending and approved this proposal
 					if proposal.status == ProposalStatus::Pending && approve {
@@ -556,7 +559,7 @@ pub mod pallet {
 						let vote: Votes<T> = Votes {
 							index: proposal_id,
 							threshold: threshold_u32,
-							ayes: vec![caller.clone()],
+							ayes: Vec::new(),
 							nays: Vec::new(),
 						};
 
