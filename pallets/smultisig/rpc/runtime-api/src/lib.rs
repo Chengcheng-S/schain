@@ -21,21 +21,23 @@
 //! of a node that wants to use the custom RPC extension
 //!
 
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 sp_api::decl_runtime_apis! {
 	/// The API to query account nonce.
-	pub trait Proposals<AccountId, Nonce> where
+	pub trait SmultisigModule<AccountId, Nonce,Proposal> where
 		AccountId: codec::Codec,
+		Proposal: codec::Codec,
 		Nonce: codec::Codec,
 	{
 		/// proposal info
-		fn proposal_info() -> Vec<(u32, Proposal)>;
+		fn proposal_info(id:u32) -> (u32, Proposal);
 
 		/// finish proposal
-		fn finish_proposal() -> Vec<(u32, Proposal)>;
+		fn finish_proposal(id:u32) -> (u32, Proposal);
 
 		/// accound who in multisig  group
-		fn multisig_members() -> Vec<AccountId>;
+		fn multisig_members() -> AccountId;
 	}
 }

@@ -2,8 +2,8 @@
 name = "schain"
 version = "4.0.0-dev"
 description = "A fresh FRAME-based Substrate node, ready for hacking."
-authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
-homepage = "https://substrate.io/"
+authors = ["Chengcheng-S <https://github.com/Chengcheng-S>"]
+homepage = "https://github.com/Chengcheng-S/schain"
 edition = "2021"
 license = "MIT-0"
 publish = false

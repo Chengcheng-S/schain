@@ -6988,6 +6988,7 @@ dependencies = [
  "pallet-transaction-payment-rpc-runtime-api",
  "parity-scale-codec",
  "scale-info",
+ "smultisig-rpc-runtime-api",
  "sp-api",
  "sp-block-builder",
  "sp-consensus-aura",
@@ -7380,6 +7381,27 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+
+[[package]]
+name = "smultisig-rpc-runtime-api"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "sp-api",
+]
+
+[[package]]
+name = "smultisig-rpc-runtime-rpc"
+version = "0.1.0"
+dependencies = [
+ "jsonrpsee",
+ "parity-scale-codec",
+ "smultisig-rpc-runtime-api",
+ "sp-api",
+ "sp-blockchain",
+ "sp-rpc",
+ "sp-weights",
+]
 
 [[package]]
 name = "snap"
