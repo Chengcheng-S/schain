@@ -27,7 +27,7 @@ pub use pallet_smultisig::Proposal;
 
 sp_api::decl_runtime_apis! {
 	/// The API to query account nonce.
-	pub trait SmultisigModule<AccountId,Proposal> where
+	pub trait SmultisigApi<AccountId,Proposal> where
 		AccountId: codec::Codec,
 		Proposal: codec::Codec,
 	{
