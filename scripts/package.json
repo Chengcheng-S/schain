@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@polkadot/api": "^10.9.1"
+  },
+  "scripts": {
+    "rpc-method": "node rpc-method.js"
+  }
+}

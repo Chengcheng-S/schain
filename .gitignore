@@ -11,3 +11,7 @@
 # direnv files
 .envrc
 .direnv
+
+# test code depens
+**/scripts/node_modules
+**/scripts/yarn-error.log

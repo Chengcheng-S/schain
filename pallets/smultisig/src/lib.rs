@@ -374,17 +374,6 @@ pub mod pallet {
 			//todo ! check if member exists
 			Ok(())
 		}
-
-		#[pallet::call_index(6)]
-		#[pallet::weight(Weight::from_parts(5_000, 0))]
-		pub fn get_pending_proposal(origin: OriginFor<T>) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
-
-			let _ = Proposals::<T>::iter()
-				.filter(|(_id, proposal)| proposal.status == ProposalStatus::Pending);
-
-			Ok(())
-		}
 	}
 
 	impl<T: Config> Pallet<T> {
@@ -655,6 +644,21 @@ pub mod pallet {
 				5 => 2 * (member_numbers % 3), // must 2/3 +
 				_ => member_numbers / 2 + 1,   // must 1/2 +
 			}
+		}
+
+		pub fn proposal_info() -> Vec<(u32, Proposal<T>)> {
+			let proposal = Proposals::<T>::iter()
+				.filter(|(_id, proposal)| proposal.status == ProposalStatus::Pending)
+				.collect::<Vec<_>>();
+			proposal
+		}
+
+		pub fn finish_proposal() -> Vec<(u32, Proposal<T>)> {
+			FinishedProposal::<T>::iter().collect::<Vec<_>>()
+		}
+
+		pub fn multisig_members() -> Vec<T::AccountId> {
+			MultisigMembers::<T>::get().to_vec()
 		}
 	}
 }
