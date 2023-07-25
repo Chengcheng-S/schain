@@ -21,15 +21,15 @@
 //! of a node that wants to use the custom RPC extension
 //!
 
-
 #![cfg_attr(not(feature = "std"), no_std)]
+
+pub use pallet_smultisig::Proposal;
 
 sp_api::decl_runtime_apis! {
 	/// The API to query account nonce.
-	pub trait SmultisigModule<AccountId, Nonce,Proposal> where
+	pub trait SmultisigModule<AccountId,Proposal> where
 		AccountId: codec::Codec,
 		Proposal: codec::Codec,
-		Nonce: codec::Codec,
 	{
 		/// proposal info
 		fn proposal_info(id:u32) -> (u32, Proposal);
