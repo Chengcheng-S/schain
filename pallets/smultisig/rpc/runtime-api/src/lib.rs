@@ -19,11 +19,10 @@
 //!
 //! This API should be imported and implemented by the runtime,
 //! of a node that wants to use the custom RPC extension
-//!
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use pallet_smultisig::Proposal;
+// pub use pallet_smultisig::Proposal;
 
 sp_api::decl_runtime_apis! {
 	/// The API to query account nonce.

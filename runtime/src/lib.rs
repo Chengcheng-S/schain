@@ -45,7 +45,6 @@ use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
-
 /// Import the template pallet.
 pub use pallet_template;
 
@@ -64,8 +63,7 @@ pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::Account
 /// Balance of an account.
 pub type Balance = u128;
 
-
-pub type proposal = pallet_smultisig::Proposal;
+pub type Proposal = u32;
 
 /// Index of a transaction in the chain.
 pub type Index = u32;
@@ -525,21 +523,21 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl smultisig_rpc_runtime_api::SmultisigApi<AccountId,Proposal> for Runtime {
-		
+	impl smultisig_rpc_runtime_api::SmultisigApi<Block,AccountId,Proposal> for Runtime {
+
 		/// proposal info
 		fn proposal_info(id:u32) -> (u32, Proposal){
-			MultisigMoudle::proposal_info(id)
+			MultisigMoudle::infos(id)
 		}
 
 		/// finish proposal
 		fn finish_proposal(id:u32) -> (u32, Proposal){
-			MultisigMoudle::finish_proposal(id)
+			MultisigMoudle::finfish(id)
 		}
 
 		/// accound who in multisig  group
 		fn multisig_members() -> AccountId{
-			MultisigMoudle::multisig_members()
+			MultisigMoudle::multisig_members().last().unwrap().clone()
 		}
 	}
 

@@ -660,5 +660,15 @@ pub mod pallet {
 		pub fn multisig_members() -> Vec<T::AccountId> {
 			MultisigMembers::<T>::get().to_vec()
 		}
+
+		pub fn infos(id:u32)->(u32,u32){
+			(id,2)
+		}
+		pub fn finfish(id:u32)->(u32,u32){
+			(1,id)
+		}
+
+
+
 	}
 }
