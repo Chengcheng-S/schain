@@ -4,8 +4,6 @@ members = [
     "node",
     "pallets/template",
     "pallets/smultisig",
-    # "pallets/smultisig/rpc/runtime-api",
-    "pallets/smultisig/rpc",
     "runtime",
 ]
 [profile.release]

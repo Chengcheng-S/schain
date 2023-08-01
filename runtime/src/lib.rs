@@ -523,23 +523,6 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl smultisig_rpc_runtime_api::SmultisigApi<Block,AccountId,Proposal> for Runtime {
-
-		/// proposal info
-		fn proposal_info(id:u32) -> (u32, Proposal){
-			MultisigMoudle::infos(id)
-		}
-
-		/// finish proposal
-		fn finish_proposal(id:u32) -> (u32, Proposal){
-			MultisigMoudle::finfish(id)
-		}
-
-		/// accound who in multisig  group
-		fn multisig_members() -> AccountId{
-			MultisigMoudle::multisig_members().last().unwrap().clone()
-		}
-	}
 
 	#[cfg(feature = "runtime-benchmarks")]
 	impl frame_benchmarking::Benchmark<Block> for Runtime {
