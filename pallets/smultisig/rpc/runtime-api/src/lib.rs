@@ -21,14 +21,16 @@
 //! of a node that wants to use the custom RPC extension
 
 #![cfg_attr(not(feature = "std"), no_std)]
+use codec::{Decode, Encode};
+use frame_support::dispatch::Vec;
 
 // pub use pallet_smultisig::Proposal;
 
 sp_api::decl_runtime_apis! {
 	/// The API to query account nonce.
 	pub trait SmultisigApi<AccountId,Proposal> where
-		AccountId: codec::Codec,
-		Proposal: codec::Codec,
+		AccountId: Decode + Encode,
+		Proposal: Encode +  Decode,
 	{
 		/// proposal info
 		fn proposal_info(id:u32) -> (u32, Proposal);
@@ -37,6 +39,6 @@ sp_api::decl_runtime_apis! {
 		fn finish_proposal(id:u32) -> (u32, Proposal);
 
 		/// accound who in multisig  group
-		fn multisig_members() -> AccountId;
+		fn multisig_members() -> Vec<AccountId>;
 	}
 }

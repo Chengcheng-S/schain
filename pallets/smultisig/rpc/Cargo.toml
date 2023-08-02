@@ -1,5 +1,5 @@
 [package]
-name = "smultisig-rpc-runtime-rpc"
+name = "pallet-smultisig-rpc"
 version = "0.1.0"
 authors = ["Chengcheng-S <https://github.com/Chengcheng-S>"]
 homepage = "https://github.com/Chengcheng-S/schain"
@@ -19,4 +19,5 @@ smultisig-rpc-runtime-api = { version = "0.1.0", path = "./runtime-api" }
 sp-api = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42", default-features = false }
 sp-blockchain = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42", default-features = false }
 sp-rpc = { version = "6.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42", default-features = false }
+sp-runtime = { version = "7.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42", default-features = false }
 sp-weights = { version = "4.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42", default-features = false }

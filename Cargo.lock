@@ -4702,6 +4702,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-smultisig-rpc"
+version = "0.1.0"
+dependencies = [
+ "jsonrpsee",
+ "parity-scale-codec",
+ "smultisig-rpc-runtime-api",
+ "sp-api",
+ "sp-blockchain",
+ "sp-rpc",
+ "sp-runtime",
+ "sp-weights",
+]
+
+[[package]]
 name = "pallet-sudo"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.42#ff24c60ac7d9f87727ecdd0ded9a80c56e4f4b65"
@@ -6932,6 +6946,7 @@ dependencies = [
  "frame-system",
  "futures",
  "jsonrpsee",
+ "pallet-smultisig-rpc",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc",
  "sc-basic-authorship",
@@ -7386,22 +7401,10 @@ checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 name = "smultisig-rpc-runtime-api"
 version = "0.1.0"
 dependencies = [
+ "frame-support",
  "pallet-smultisig",
  "parity-scale-codec",
  "sp-api",
-]
-
-[[package]]
-name = "smultisig-rpc-runtime-rpc"
-version = "0.1.0"
-dependencies = [
- "jsonrpsee",
- "parity-scale-codec",
- "smultisig-rpc-runtime-api",
- "sp-api",
- "sp-blockchain",
- "sp-rpc",
- "sp-weights",
 ]
 
 [[package]]

@@ -536,8 +536,9 @@ impl_runtime_apis! {
 		}
 
 		/// accound who in multisig  group
-		fn multisig_members() -> AccountId{
-			MultisigMoudle::multisig_members().last().unwrap().clone()
+		fn multisig_members() -> Vec<AccountId>{
+			// MultisigMoudle::multisig_members().last().unwrap().clone()
+			MultisigMoudle::multisig_members()
 		}
 	}
 

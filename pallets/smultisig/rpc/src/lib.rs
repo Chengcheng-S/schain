@@ -17,27 +17,22 @@
 
 //! RPC interface for the transaction payment pallet.
 
-use std::{convert::TryInto, sync::Arc};
-
-use codec::{Codec, Decode};
+use std::sync::Arc;
 use jsonrpsee::{
-	core::{Error as JsonRpseeError, RpcResult},
+	core::RpcResult,
 	proc_macros::rpc,
-	types::error::{CallError, ErrorCode, ErrorObject},
 };
+use sp_api::ProvideRuntimeApi;
+use sp_blockchain::HeaderBackend;
+use sp_runtime::traits::Block as BlockT;
 
 
 use smultisig_rpc_runtime_api::SmultisigApi;
 
-
-#[rpc(client,server)]
+#[rpc(client, server)]
 pub trait SumtisigModuleApi {
-
-    #[method(name = "group_members")]
-    fn group_members(&self)->Vec<AccountId>;
-
-
-
+	#[method(name = "group_members")]
+	fn group_members(&self) -> RpcResult<Vec<u32>>;
 }
 
 /// Provides RPC methods to query a dispatchable's class, weight and fee.
@@ -47,9 +42,39 @@ pub struct SmultisigModule<C, P> {
 	_marker: std::marker::PhantomData<P>,
 }
 
+// Error of this RPC api
+pub enum Error {
+	EmptyGroup,
+
+}
+
+impl From<Error> for i32{
+	fn from(value: Error) -> Self {
+		match value {
+			Error::EmptyGroup => 1,
+		}
+	}
+}
+
 impl<C, P> SmultisigModule<C, P> {
 	/// Creates a new instance of the TransactionPayment Rpc helper.
 	pub fn new(client: Arc<C>) -> Self {
 		Self { client, _marker: Default::default() }
+	}
+}
+
+impl<C, Block> SumtisigModuleApiServer for SmultisigModule<Block, C>
+where
+	Block: BlockT,
+	C: ProvideRuntimeApi<Block> + HeaderBackend<Block> + Send + Sync + 'static,
+	C::Api: SmultisigApi<Block, u32, u32>,
+{
+	fn group_members(&self) -> RpcResult<Vec<u32>> {
+		
+		let api = self.client.runtime_api();
+		
+		self.client.hash();
+
+		Ok(vec![1,2,3])
 	}
 }
