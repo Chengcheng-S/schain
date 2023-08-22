@@ -647,10 +647,9 @@ pub mod pallet {
 		}
 
 		pub fn proposal_info() -> Vec<(u32, Proposal<T>)> {
-			let proposal = Proposals::<T>::iter()
+			Proposals::<T>::iter()
 				.filter(|(_id, proposal)| proposal.status == ProposalStatus::Pending)
-				.collect::<Vec<_>>();
-			proposal
+				.collect::<Vec<_>>()
 		}
 
 		pub fn finish_proposal() -> Vec<(u32, Proposal<T>)> {
