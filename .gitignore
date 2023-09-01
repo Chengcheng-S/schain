@@ -12,6 +12,8 @@
 .envrc
 .direnv
 
+.idea/
+.vscode/
 # test code depens
 **/scripts/node_modules
 **/scripts/yarn-error.log
