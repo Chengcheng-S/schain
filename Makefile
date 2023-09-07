@@ -37,6 +37,11 @@ cargofix:
 	cargo fix --allow-dirty --allow-staged --workspace --all-targets --all-features
 
 
+# toml && lock check
+.PHONY: tomlcheck ## cargo toml check
+tomlcheck:
+	cargo audit fix --dry-run
+
 # format
 
 .PHONY: fmtcheck ## cargo fmt check
