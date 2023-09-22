@@ -58,6 +58,14 @@ fmt:
 	cargo fmt --all && taplo fmt
 
 
+.PHONY: test-cargo-all ## cargo test --all
+test-cargo-all:
+	@cargo test --release --all
+
+.PHONY: test-benchmarks ## cargo test --all --features runtime-benchmarks
+test-benchmarks:
+	@cargo test --release --all --features runtime-benchmarks
+
 # build
 .PHONY: build ## build node
 build:

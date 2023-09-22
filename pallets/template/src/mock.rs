@@ -6,7 +6,6 @@ use sp_runtime::{
 	BuildStorage,
 };
 
-type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 
 // Configure a mock runtime to test the pallet.

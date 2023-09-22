@@ -7,7 +7,7 @@ homepage = "https://github.com/Chengcheng-S/schain"
 edition = "2021"
 license = "MIT-0"
 publish = false
-repository = "https://github.com/Chengcheng-S/my_substrate"
+repository = "https://github.com/Chengcheng-S/schain.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -8,6 +8,7 @@ mod mock;
 #[cfg(test)]
 mod test;
 pub mod weights;
+mod benchmarking;
 
 pub use weights::*;
 
